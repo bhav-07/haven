@@ -6,6 +6,7 @@ import (
 	"github.com/bhav-07/haven/config"
 	"github.com/bhav-07/haven/db"
 	"github.com/bhav-07/haven/handlers/auth"
+	"github.com/bhav-07/haven/middleware"
 	"github.com/bhav-07/haven/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -37,6 +38,15 @@ func main() {
 	app.Use(cors.New(*config.GetCORSConfig()))
 
 	auth.AuthHandlers(app.Group("/auth"), db.DB)
+
+	protected := app.Use(middleware.AuthMiddleware(db.DB))
+
+	protected.Get("/secure", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"status":  "success",
+			"message": "You are authenticated",
+		})
+	})
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
