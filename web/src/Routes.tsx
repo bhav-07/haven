@@ -2,6 +2,7 @@ import { RouterProvider, createBrowserRouter } from "react-router";
 import Signin from "./pages/Signin";
 import Home from "./pages/Home";
 import { ProtectedRoute } from "./auth/protectedRoute";
+import Game from "./pages/Space";
 
 const Routes = () => {
   const routesForPublic = [
@@ -31,6 +32,10 @@ const Routes = () => {
         {
           path: "/home",
           element: <Home />,
+        },
+        {
+          path: "/space",
+          element: <Game />,
         },
         {
           path: "/profile",
