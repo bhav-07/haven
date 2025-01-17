@@ -12,7 +12,7 @@ export const ProtectedRoute = () => {
 
   if (isLoading) {
     console.log("ProtectedRoute - Loading");
-    return null; // Or a loading spinner
+    return null;
   }
 
   if (!isAuthenticated) {
