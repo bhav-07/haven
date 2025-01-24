@@ -50,7 +50,10 @@ export class Sprite {
             this.image.height
         );
 
-        if (!this.moving) return;
+        if (!this.moving) {
+            this.frames.val = 0;
+            return;
+        }
         if (this.frames.max > 1) {
             this.frames.elapsed++;
         }

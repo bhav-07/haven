@@ -3,23 +3,23 @@ import { useAuth } from "./authContext";
 
 export const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
-  console.log(
-    "ProtectedRoute - isAuthenticated:",
-    isAuthenticated,
-    "isLoading:",
-    isLoading
-  );
+  // console.log(
+  //   "ProtectedRoute - isAuthenticated:",
+  //   isAuthenticated,
+  //   "isLoading:",
+  //   isLoading
+  // );
 
   if (isLoading) {
-    console.log("ProtectedRoute - Loading");
+    // console.log("ProtectedRoute - Loading");
     return null;
   }
 
   if (!isAuthenticated) {
-    console.log("ProtectedRoute - Redirecting to signin");
+    // console.log("ProtectedRoute - Redirecting to signin");
     return <Navigate to="/signin" replace />;
   }
 
-  console.log("ProtectedRoute - Rendering protected content");
+  // console.log("ProtectedRoute - Rendering protected content");
   return <Outlet />;
 };

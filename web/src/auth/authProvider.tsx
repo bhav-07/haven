@@ -21,11 +21,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           credentials: "include",
         });
         setIsAuthenticated(response.ok);
-        console.log("is authenticated");
+        // console.log("is authenticated");
       } catch (error) {
         console.error("Error checking authentication:", error);
         setIsAuthenticated(false);
-        console.log("not authenticated");
+        // console.log("not authenticated");
       } finally {
         setIsLoading(false);
       }
@@ -45,14 +45,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   if (isLoading) {
-    console.log("AuthProvider - Still loading");
+    // console.log("AuthProvider - Still loading");
     return null; // Or a loading spinner
   }
 
-  console.log(
-    "AuthProvider - Rendering with isAuthenticated:",
-    isAuthenticated
-  );
+  // console.log(
+  // "AuthProvider - Rendering with isAuthenticated:",
+  // isAuthenticated
+  // );
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
