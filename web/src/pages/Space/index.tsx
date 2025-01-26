@@ -14,7 +14,7 @@ import { handleMovement } from "./utils/movement";
  * through various refs to avoid unnecessary re-renders.
  */
 const Game: React.FC = () => {
-  const ws = new WebSocket("ws://localhost:8080/ws");
+  const ws = new WebSocket("ws://localhost:8080/space/ws/1");
   ws.onopen = () => {
     console.log("Connected to game server");
   };
