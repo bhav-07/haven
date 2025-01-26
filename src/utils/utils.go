@@ -1,4 +1,4 @@
-package auth
+package utils
 
 import (
 	"encoding/json"
@@ -9,7 +9,18 @@ import (
 
 	"github.com/bhav-07/haven/models"
 	"github.com/dgrijalva/jwt-go"
+	"gorm.io/gorm"
 )
+
+func GetUserfromID(userId uint, db *gorm.DB) (models.User, error) {
+	var user models.User
+	result := db.Where("id = ?", userId).First(&user)
+	if result.Error == gorm.ErrRecordNotFound {
+		return user, result.Error
+	}
+
+	return user, nil
+}
 
 func GetUserInfo(accessToken string) (*models.User, error) {
 	userInfoEndpoint := "https://www.googleapis.com/oauth2/v2/userinfo"

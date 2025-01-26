@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/bhav-07/haven/handlers/auth"
 	"github.com/bhav-07/haven/models"
+	"github.com/bhav-07/haven/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
@@ -18,10 +18,14 @@ func AuthMiddleware(db *gorm.DB) fiber.Handler {
 
 		if cookieToken != "" {
 			tokenString = cookieToken
+		} else {
+			return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
+				"status":  "error",
+				"message": "Unauthorized",
+			})
 		}
 
-		claims, err := auth.VerifyJWT(tokenString)
-		fmt.Println(claims["id"])
+		claims, err := utils.VerifyJWT(tokenString)
 
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
@@ -29,8 +33,12 @@ func AuthMiddleware(db *gorm.DB) fiber.Handler {
 				"message": "Unauthorized",
 			})
 		}
-		id, ok := claims["id"].(float64) // JWT claims often return numbers as float64
-		if !ok {
+
+		var id uint
+		if idFloat, ok := claims["id"].(float64); ok {
+			id = uint(idFloat) // Convert float64 to uint
+		} else {
+			fmt.Println("claims['id'] is not a float64, type:", fmt.Sprintf("%T", claims["id"]))
 			return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
 				"status":  "error",
 				"message": "Invalid token payload",
@@ -38,7 +46,7 @@ func AuthMiddleware(db *gorm.DB) fiber.Handler {
 		}
 
 		var user models.User
-		if err := db.First(&user, uint(id)).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		if err := db.First(&user, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Warn("user not found in the db")
 			c.ClearCookie("token")
 			return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
@@ -47,7 +55,7 @@ func AuthMiddleware(db *gorm.DB) fiber.Handler {
 			})
 		}
 
-		c.Locals("userId", claims["id"])
+		c.Locals("userId", id)
 
 		return c.Next()
 	}

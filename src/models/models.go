@@ -1,7 +1,21 @@
 package models
 
+import (
+	"gorm.io/gorm"
+)
+
 type User struct {
-	BaseModel
-	Email string `json:"email" gorm:"unique;not null"`
-	Name  string `json:"name" gorm:"not null"`
+	gorm.Model
+	Email  string  `json:"email" gorm:"type:text;unique;not null"`
+	Name   string  `json:"name" gorm:"type:text;not null"`
+	Spaces []Space `gorm:"many2many:user_spaces;"`
+	// Spaces []Space   `gorm:"many2many"`
+}
+
+type Space struct {
+	gorm.Model
+	Name      string `json:"name" gorm:"type:text;not null"`
+	CreatedBy uint   `json:"created_by" gorm:"not null"`
+	// Members   []User    `gorm:"many2many"`
+	Members []User `gorm:"many2many:user_spaces;"`
 }
