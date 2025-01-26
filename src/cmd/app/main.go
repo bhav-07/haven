@@ -6,6 +6,7 @@ import (
 	"github.com/bhav-07/haven/config"
 	"github.com/bhav-07/haven/db"
 	"github.com/bhav-07/haven/handlers/auth"
+	"github.com/bhav-07/haven/handlers/space"
 	"github.com/bhav-07/haven/middleware"
 	"github.com/bhav-07/haven/models"
 	"github.com/gofiber/fiber/v2"
@@ -22,7 +23,7 @@ func init() {
 		panic(err)
 	}
 
-	err = db.DB.AutoMigrate(&models.User{})
+	err = db.DB.AutoMigrate(&models.User{}, &models.Space{})
 	if err != nil {
 		log.Error("Error migrating database", "error", err.Error())
 		panic(fmt.Sprintf("Error migrating database: %v", err))
@@ -40,6 +41,8 @@ func main() {
 	auth.AuthHandlers(app.Group("/auth"), db.DB)
 
 	protected := app.Use(middleware.AuthMiddleware(db.DB))
+
+	space.SpaceHandlers(protected, db.DB)
 
 	protected.Get("/secure", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{

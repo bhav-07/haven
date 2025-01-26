@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Sprite } from "./entities/Sprite";
 import { Boundary } from "./entities/Boundary";
 import { Keys } from "./types/space.types";
-import { MAP_TILES, OFFSET, SCREEN } from "./constants/game.constants";
+import { FPS, MAP_TILES, OFFSET } from "./constants/game.constants";
 import { collisions } from "./constants/collisionsObject";
 import { handleMovement } from "./utils/movement";
 
@@ -14,6 +14,15 @@ import { handleMovement } from "./utils/movement";
  * through various refs to avoid unnecessary re-renders.
  */
 const Game: React.FC = () => {
+  const ws = new WebSocket("ws://localhost:8080/ws");
+  ws.onopen = () => {
+    console.log("Connected to game server");
+  };
+
+  ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    console.log("Received message:", message);
+  };
   // Canvas and animation refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number>();
@@ -37,18 +46,16 @@ const Game: React.FC = () => {
    * and maintaining aspect ratio.
    */
   const setupCanvas = (canvas: HTMLCanvasElement) => {
-    const aspectRatio = 16 / 9;
-    let canvasWidth = SCREEN.width;
-    let canvasHeight = SCREEN.width / aspectRatio;
-
+    // const aspectRatio = 16 / 9;
+    // const canvasWidth = SCREEN.width;
+    // const canvasHeight = SCREEN.height;
     // Adjust dimensions if height exceeds screen height
-    if (canvasHeight > SCREEN.height) {
-      canvasHeight = SCREEN.height;
-      canvasWidth = SCREEN.height * aspectRatio;
-    }
-
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+    // if (canvasHeight > SCREEN.height) {
+    // canvasHeight = SCREEN.height;
+    // canvasWidth = SCREEN.width * aspectRatio;
+    // }
+    canvas.width = 1920;
+    canvas.height = 1920;
   };
 
   /**
@@ -145,7 +152,23 @@ const Game: React.FC = () => {
     if (!ctx || !player || !map) return;
 
     // Request next frame first to ensure smooth animation
-    animationFrameId.current = requestAnimationFrame(() => animate(ctx));
+    setTimeout(() => {
+      animationFrameId.current = requestAnimationFrame(() => animate(ctx));
+    }, 1000 / FPS);
+
+    if (player.moving) {
+      const position = {
+        x: map.position.x - OFFSET.x,
+        y: map.position.y - OFFSET.y,
+      };
+
+      ws.send(
+        JSON.stringify({
+          type: "position_update",
+          position: position,
+        })
+      );
+    }
 
     // Clear canvas and draw game elements
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -225,9 +248,9 @@ const Game: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900">
-      <canvas ref={canvasRef} className="border border-gray-700" />
-    </div>
+    // <div className=" bg-gray-900">
+    <canvas ref={canvasRef} className="m-0" />
+    // </div>
   );
 };
 
