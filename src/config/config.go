@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
@@ -56,5 +57,13 @@ func GetCORSConfig() *cors.Config {
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, Set-Cookie",
 		ExposeHeaders:    "Set-Cookie",
 		MaxAge:           3600,
+	}
+}
+
+func GetRedisConfig() *redis.Options {
+	return &redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
 	}
 }

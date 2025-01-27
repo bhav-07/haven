@@ -15,6 +15,19 @@ import { handleMovement } from "./utils/movement";
  */
 const Game: React.FC = () => {
   const ws = new WebSocket("ws://localhost:8080/space/ws/1");
+
+  ws.onopen = () => {
+    console.log("Connected to space");
+  };
+
+  ws.onclose = (e) => {
+    console.log("Connection closed:", e.reason);
+    // Implement reconnection logic if needed
+  };
+
+  ws.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
   ws.onopen = () => {
     console.log("Connected to game server");
   };

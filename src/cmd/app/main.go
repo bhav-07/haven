@@ -9,6 +9,7 @@ import (
 	"github.com/bhav-07/haven/handlers/space"
 	"github.com/bhav-07/haven/middleware"
 	"github.com/bhav-07/haven/models"
+	"github.com/bhav-07/haven/redis"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -18,6 +19,7 @@ import (
 func init() {
 	config.LoadConfig()
 	_, err := db.InitializeDB()
+	redis.InitializeRedis()
 	if err != nil {
 		log.Error("Failed to initialize database", "error", err.Error())
 		panic(err)
@@ -31,6 +33,7 @@ func init() {
 }
 
 func main() {
+
 	app := fiber.New(fiber.Config{AppName: "Haven"})
 	defer db.CloseDB(db.DB)
 

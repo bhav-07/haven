@@ -3,10 +3,10 @@ package space
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/bhav-07/haven/models"
+	"github.com/bhav-07/haven/redis"
 	"github.com/bhav-07/haven/utils"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
@@ -15,6 +15,11 @@ import (
 )
 
 func SpaceHandlers(route fiber.Router, db *gorm.DB) {
+
+	spaceServer, err := redis.NewSpaceServer()
+	if err != nil {
+		log.Error("Unable to create a space server: %v", err.Error())
+	}
 
 	route.Post("/space", func(c *fiber.Ctx) error {
 		newSpace := new(models.Space)
@@ -105,24 +110,5 @@ func SpaceHandlers(route fiber.Router, db *gorm.DB) {
 		return fiber.ErrUpgradeRequired
 	})
 
-	route.Get("space/ws/:id", websocket.New(func(c *websocket.Conn) {
-		var (
-			mt  int
-			msg []byte
-			err error
-		)
-		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
-				fmt.Println("read:", err)
-				break
-			}
-			fmt.Printf("recv: %s", msg)
-
-			if err = c.WriteMessage(mt, msg); err != nil {
-				fmt.Println("write:", err)
-				break
-			}
-		}
-
-	}))
+	route.Get("space/ws/:id", websocket.New(spaceServer.HandleWebSocket))
 }
