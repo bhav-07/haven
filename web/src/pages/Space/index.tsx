@@ -14,28 +14,40 @@ import { handleMovement } from "./utils/movement";
  * through various refs to avoid unnecessary re-renders.
  */
 const Game: React.FC = () => {
-  const ws = new WebSocket("ws://localhost:8080/space/ws/1");
+  const wsRef = useRef<WebSocket | null>(null);
 
-  ws.onopen = () => {
-    console.log("Connected to space");
-  };
+  useEffect(() => {
+    // Only create the connection if it doesn't exist
+    if (!wsRef.current) {
+      wsRef.current = new WebSocket("ws://localhost:8080/space/ws/1");
 
-  ws.onclose = (e) => {
-    console.log("Connection closed:", e.reason);
-    // Implement reconnection logic if needed
-  };
+      wsRef.current.onopen = () => {
+        console.log("Connected to game server");
+      };
 
-  ws.onerror = (error) => {
-    console.error("WebSocket error:", error);
-  };
-  ws.onopen = () => {
-    console.log("Connected to game server");
-  };
+      wsRef.current.onclose = (e) => {
+        console.log("Connection closed:", e.reason);
+        // Implement reconnection logic if needed
+      };
 
-  ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    console.log("Received message:", message);
-  };
+      wsRef.current.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      wsRef.current.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        console.log("Received message:", message);
+      };
+    }
+
+    // Cleanup WebSocket connection on unmount
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, []);
   // Canvas and animation refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number>();
@@ -175,7 +187,7 @@ const Game: React.FC = () => {
         y: map.position.y - OFFSET.y,
       };
 
-      ws.send(
+      wsRef.current?.send(
         JSON.stringify({
           type: "position_update",
           position: position,
