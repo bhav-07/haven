@@ -4,7 +4,7 @@ type Props = {
   shape?: boolean;
   text?: boolean;
   size?: number;
-  logoType: LogoProps;
+  logoType?: LogoProps;
 };
 
 type LogoProps = {
@@ -18,7 +18,7 @@ const Logo = ({ shape = true, text = true, size = 40 }: Props) => {
       className="flex flex-row items-center justify-center gap-x-1"
       style={{ height: size }}
     >
-      {shape && <LogoShape variant="gradient1" />}
+      {shape && <LogoShape variant="gradient2" />}
       {text && (
         <h1
           className="font-poppins"

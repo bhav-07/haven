@@ -1,5 +1,4 @@
 import { useGoogleLogin } from "@react-oauth/google";
-import LogoShape from "../components/logo/logo-shape";
 import { useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "../auth/authContext";
 import { useEffect } from "react";
@@ -49,18 +48,15 @@ const Signin = () => {
   });
 
   return (
-    <main className="h-svh flex flex-row bg-neutral-200 login-page-gradient">
-      <section className="login-page-gradient-1 flex-1 m-6 rounded-3xl md:flex hidden">
-        <LogoShape className="size-full p-10" variant="gradient2" />
-      </section>
-      <section className="flex-1 flex flex-col items-center justify-center text-zinc-800 space-y-4">
-        <h1 className="text-3xl">
-          Welcome to <span className="font-serif font-bold">Haven</span>
+    <main className="h-svh flex flex-row">
+      <section className="flex-1 flex flex-col items-center justify-center md:space-y-4 space-y-2">
+        <h1 className="md:text-4xl text-2xl">
+          Welcome to <span className="font-serif font-extrabold">Haven</span>
         </h1>
-        <h3>Signin to get Started</h3>
+        <h3 className="md:text-base text-sm">Signin to get Started</h3>
         <button
           onClick={() => handleLogin()}
-          className="bg-white p-4 rounded-full font-semibold drop-shadow-xl flex gap-2 items-center justify-center hover:scale-105 transition-all ease-in-out"
+          className="bg-white md:p-4 p-3 rounded-full font-semibold drop-shadow-xl text-neutral-800 flex gap-2 items-center justify-center hover:scale-105 transition-all ease-in-out"
         >
           <img
             src="https://www.svgrepo.com/show/380993/google-logo-search-new.svg"

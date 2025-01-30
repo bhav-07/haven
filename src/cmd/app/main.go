@@ -61,5 +61,7 @@ func main() {
 		})
 	})
 
-	app.Listen(":8080")
+	if err := app.Listen(":8080"); err != nil {
+		log.Error(err)
+	}
 }

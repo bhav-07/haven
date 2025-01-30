@@ -3,6 +3,7 @@ import Signin from "./pages/Signin";
 import Home from "./pages/Home";
 import { ProtectedRoute } from "./auth/protectedRoute";
 import Game from "./pages/Space";
+import Landing from "./pages/Landing";
 
 const Routes = () => {
   const routesForPublic = [
@@ -16,7 +17,7 @@ const Routes = () => {
     },
     {
       path: "/",
-      element: <div>Home Page</div>,
+      element: <Landing />,
     },
     {
       path: "/signin",
