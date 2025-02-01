@@ -102,7 +102,65 @@ func SpaceHandlers(route fiber.Router, db *gorm.DB) {
 		})
 	})
 
-	route.Use("space/ws", func(c *fiber.Ctx) error {
+	route.Patch("/space/:id/join", func(c *fiber.Ctx) error {
+		userId, ok := c.Locals("userId").(uint)
+		if !ok {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status": "error",
+				"error":  "Unable to get user details. Please login again",
+			})
+		}
+
+		// Get the space ID from the URL parameter
+		spaceIdstring := c.Params("id")
+		spaceId, err := strconv.ParseUint(spaceIdstring, 10, 64)
+		if err != nil {
+			log.Warn("Unable to convert string to uint")
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status": "error",
+				"error":  "Unable to convert string to uint",
+			})
+		}
+
+		var space models.Space
+		if err := db.Preload("Members").First(&space, spaceId).Error; err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"status": "error",
+				"error":  "Space not found",
+			})
+		}
+
+		var user models.User
+		if err := db.First(&user, userId).Error; err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"status": "error",
+				"error":  "User not found",
+			})
+		}
+
+		for _, member := range space.Members {
+			if member.ID == userId {
+				return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+					"status": "error",
+					"error":  "User is already a member of this space",
+				})
+			}
+		}
+
+		if err := db.Model(&space).Association("Members").Append(&user); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status": "error",
+				"error":  "Failed to add user to the space",
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"status":  "success",
+			"message": "User successfully added to the space",
+		})
+	})
+
+	route.Use("/space/ws", func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) {
 			c.Locals("allowed", true)
 			return c.Next()
@@ -110,5 +168,6 @@ func SpaceHandlers(route fiber.Router, db *gorm.DB) {
 		return fiber.ErrUpgradeRequired
 	})
 
-	route.Get("space/ws/:id", websocket.New(spaceServer.HandleWebSocket))
+	route.Get("/space/ws/:id", websocket.New(spaceServer.HandleWebSocket))
+
 }

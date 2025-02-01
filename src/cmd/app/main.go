@@ -7,6 +7,7 @@ import (
 	"github.com/bhav-07/haven/db"
 	"github.com/bhav-07/haven/handlers/auth"
 	"github.com/bhav-07/haven/handlers/space"
+	"github.com/bhav-07/haven/handlers/user"
 	"github.com/bhav-07/haven/middleware"
 	"github.com/bhav-07/haven/models"
 	"github.com/bhav-07/haven/redis"
@@ -46,6 +47,8 @@ func main() {
 	protected := app.Use(middleware.AuthMiddleware(db.DB))
 
 	space.SpaceHandlers(protected, db.DB)
+
+	user.UserHandlers(protected.Group("/user"), db.DB)
 
 	protected.Get("/secure", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{

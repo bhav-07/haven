@@ -53,7 +53,7 @@ func GetCORSConfig() *cors.Config {
 	return &cors.Config{
 		AllowCredentials: true,
 		AllowOrigins:     allowedOrigin, // Use environment-based origin
-		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,OPTIONS",
+		AllowMethods:     "GET,POST,HEAD,PATCH,PUT,DELETE,OPTIONS",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, Set-Cookie",
 		ExposeHeaders:    "Set-Cookie",
 		MaxAge:           3600,
