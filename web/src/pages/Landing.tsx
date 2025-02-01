@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import Logo from "../components/logo/logo-shape";
-import Navbar from "../components/logo/global/navbar";
+import Navbar from "../components/global/navbar";
 
 const Landing = () => {
   const navigate = useNavigate();
