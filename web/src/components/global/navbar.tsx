@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Logo from "../logo-shape";
 import { Menu, X } from "lucide-react";
+import Logo from "../logo/logo-shape";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
