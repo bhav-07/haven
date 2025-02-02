@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useApi } from "../../services/api";
 import Loading from "../global/loader";
 
-const UserSpaces = () => {
+const UserSpaces = ({ refresh }: { refresh: boolean }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [spaces, setSpaces] = useState<any[]>([]); // adjust the type based on the response shape
   const { getUserSpaces, isLoading, error: apiError } = useApi();
@@ -18,10 +18,10 @@ const UserSpaces = () => {
     };
 
     fetchSpaces();
-  }, []);
+  }, [refresh]);
 
   return (
-    <section className="max-w-7xl w-screen grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 md:my-8 my-4 px-3 gap-10">
+    <section className="max-w-7xl w-screen grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 md:my-8 my-4 px-3 md:gap-6 gap-4">
       {isLoading ? (
         <Loading mode="dark" className="mt-12" />
       ) : (

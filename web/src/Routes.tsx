@@ -1,9 +1,12 @@
 import { RouterProvider, createBrowserRouter } from "react-router";
 import Signin from "./pages/Signin";
 import Home from "./pages/Home";
+// import { ProtectedRoute } from "./auth/protectedRoute";
+// import Game from "./pages/Space";
+
+import Landing from "./pages/Landing";
 import { ProtectedRoute } from "./auth/protectedRoute";
 import Game from "./pages/Space";
-import Landing from "./pages/Landing";
 
 const Routes = () => {
   const routesForPublic = [
@@ -31,12 +34,12 @@ const Routes = () => {
       element: <ProtectedRoute />,
       children: [
         {
-          path: "/home",
-          element: <Home />,
-        },
-        {
           path: "/space",
           element: <Game />,
+        },
+        {
+          path: "/home",
+          element: <Home />,
         },
         {
           path: "/profile",

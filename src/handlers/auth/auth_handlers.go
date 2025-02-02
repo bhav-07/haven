@@ -91,7 +91,7 @@ func AuthHandlers(route fiber.Router, db *gorm.DB) {
 	})
 
 	//Takes the cookie and verifies it
-	route.Get("/check", func(c *fiber.Ctx) error {
+	route.Get("/me", func(c *fiber.Ctx) error {
 		token := c.Cookies("token")
 		if token == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

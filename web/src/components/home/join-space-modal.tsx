@@ -4,13 +4,13 @@ import Modal from "../global/modal";
 import Button from "../global/button";
 import Loader from "../global/loader";
 import { useApi } from "../../services/api";
-import { useNavigate } from "react-router";
+import toast, { Toaster } from "react-hot-toast";
 
-const JoinSpaceModal = () => {
+const JoinSpaceModal = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [spaceId, setSpaceId] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const { joinSpace, isLoading, error: apiError } = useApi();
 
@@ -28,7 +28,9 @@ const JoinSpaceModal = () => {
       setSpaceId("");
       setError(null);
       setIsModalOpen(false);
-      navigate(0);
+      onSuccess();
+      toast.success(`Joined space #${spaceId}.`);
+      // navigate(0);
     } catch (error) {
       setError(apiError || "Failed to join space");
     }
@@ -39,9 +41,9 @@ const JoinSpaceModal = () => {
 
     setSpaceId(e.target.value);
   };
-
   return (
     <>
+      <Toaster />
       <Button
         variant="light"
         className="bg-gradient-to-br from-[#fdfcfb] to-[#fff1e6] rounded-lg text-black px-4 py-2"

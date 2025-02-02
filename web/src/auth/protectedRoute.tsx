@@ -1,25 +1,21 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "./authContext";
+import Loading from "../components/global/loader";
 
 export const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
-  // console.log(
-  //   "ProtectedRoute - isAuthenticated:",
-  //   isAuthenticated,
-  //   "isLoading:",
-  //   isLoading
-  // );
 
   if (isLoading) {
-    // console.log("ProtectedRoute - Loading");
-    return null;
+    return (
+      <div className="flex w-screen h-svh justify-center items-center">
+        <Loading mode="dark" size="large" />
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
-    // console.log("ProtectedRoute - Redirecting to signin");
     return <Navigate to="/signin" replace />;
   }
 
-  // console.log("ProtectedRoute - Rendering protected content");
   return <Outlet />;
 };

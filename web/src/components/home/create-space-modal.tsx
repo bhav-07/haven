@@ -3,13 +3,12 @@ import Modal from "../global/modal";
 import Button from "../global/button";
 import Loader from "../global/loader"; // Import the loader component
 import { useApi } from "../../services/api";
-import { useNavigate } from "react-router";
+import toast, { Toaster } from "react-hot-toast";
 
-const CreateSpaceModal = () => {
+const CreateSpaceModal = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [spaceName, setSpaceName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const { createSpace, isLoading, error: apiError } = useApi();
 
@@ -31,7 +30,8 @@ const CreateSpaceModal = () => {
       setSpaceName("");
       setError(null);
       setIsModalOpen(false);
-      navigate(0);
+      onSuccess();
+      toast.success(`Created space ${trimmedSpaceName}.`);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError(apiError || "Failed to create space");
@@ -46,10 +46,13 @@ const CreateSpaceModal = () => {
 
   return (
     <>
+      <Toaster />
       <Button
         variant="light"
         className="bg-gradient-to-br from-[#fdfcfb] to-[#fff1e6] rounded-lg text-black px-4 py-2"
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => {
+          setIsModalOpen(true);
+        }}
       >
         + Create space
       </Button>
@@ -72,7 +75,7 @@ const CreateSpaceModal = () => {
           />
           {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end space-x-4 w-full">
           <Button
             variant="light"
             className="border-neutral-200 border-2"

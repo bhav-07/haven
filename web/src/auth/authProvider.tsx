@@ -3,29 +3,50 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import axios from "axios";
 import { AuthContext } from "./authContext";
 
+type UserResponse = {
+  status: "success" | "error";
+  user: {
+    email: string;
+    exp: number;
+    id: number;
+    iss: string;
+    name: string;
+  };
+};
+
+export type User = UserResponse["user"];
+
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   if (!clientId) {
     console.error("VITE_GOOGLE_CLIENT_ID is not defined");
   }
 
+  const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
 
   axios.defaults.withCredentials = true;
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("http://localhost:8080/auth/check", {
-          credentials: "include",
-        });
-        setIsAuthenticated(response.ok);
-        // console.log("is authenticated");
+        setIsLoading(true);
+        const response = await axios.get(`${API_BASE_URL}/auth/me`);
+        const data: UserResponse = await response.data;
+        if (data.status === "success") {
+          setIsAuthenticated(true);
+          setUser(data.user);
+          if (data.user.exp < Date.now() / 1000) {
+            throw new Error("Token expired");
+          }
+        }
       } catch (error) {
         console.error("Error checking authentication:", error);
         setIsAuthenticated(false);
-        // console.log("not authenticated");
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -40,19 +61,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsAuthenticated,
       isLoading,
       setIsLoading,
+      user,
     }),
-    [isAuthenticated, isLoading]
+    [isAuthenticated, isLoading, user]
   );
 
   if (isLoading) {
-    // console.log("AuthProvider - Still loading");
-    return null; // Or a loading spinner
+    return null;
   }
-
-  // console.log(
-  // "AuthProvider - Rendering with isAuthenticated:",
-  // isAuthenticated
-  // );
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
