@@ -25,6 +25,7 @@ type Position struct {
 
 type Player struct {
 	ID       string          `json:"id"`
+	Name     string          `json:"name"`
 	SpaceID  string          `json:"space_id"`
 	Position Position        `json:"position"`
 	Conn     *websocket.Conn `json:"-"`
@@ -97,6 +98,8 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 		return
 	}
 
+	userName := c.Locals("userName").(string)
+
 	spaceIdstring := c.Params("id")
 	// spaceId, err := strconv.ParseUint(spaceIdstring, 10, 64)
 	// if err != nil {
@@ -107,6 +110,7 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 
 	player := &Player{
 		ID:       userIdStr,
+		Name:     userName,
 		SpaceID:  spaceIdstring,
 		Conn:     c,
 		Position: Position{X: 0, Y: 0},
@@ -120,9 +124,10 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 	gs.mu.Unlock()
 
 	gs.publishToRedis("game:events", "player_joined", map[string]interface{}{
-		"player_id": player.ID,
-		"space_id":  spaceIdstring,
-		"position":  player.Position,
+		"player_id":   player.ID,
+		"player_name": player.Name,
+		"space_id":    spaceIdstring,
+		"position":    player.Position,
 	})
 
 	gs.handlePlayerMessages(player)

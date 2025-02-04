@@ -56,6 +56,7 @@ func AuthMiddleware(db *gorm.DB) fiber.Handler {
 		}
 
 		c.Locals("userId", id)
+		c.Locals("userName", user.Name)
 
 		return c.Next()
 	}
