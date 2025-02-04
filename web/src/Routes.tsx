@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import { ProtectedRoute } from "./auth/protectedRoute";
 import Game from "./pages/Space";
+import Unauthozied from "./pages/401";
 
 const Routes = () => {
   const routesForPublic = [
@@ -26,6 +27,10 @@ const Routes = () => {
       path: "/signin",
       element: <Signin />,
     },
+    {
+      path: "/401",
+      element: <Unauthozied />,
+    },
   ];
 
   const routesForAuthenticatedOnly = [
@@ -34,7 +39,7 @@ const Routes = () => {
       element: <ProtectedRoute />,
       children: [
         {
-          path: "/space",
+          path: "/space/:spaceId",
           element: <Game />,
         },
         {
@@ -44,10 +49,6 @@ const Routes = () => {
         {
           path: "/profile",
           element: <div>User Profile</div>,
-        },
-        {
-          path: "/logout",
-          element: <div>Logout</div>,
         },
       ],
     },

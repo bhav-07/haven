@@ -50,16 +50,13 @@ export class Sprite {
             this.image.height
         );
 
-        if (!this.moving) {
-            this.frames.val = 0;
-            return;
-        }
-        if (this.frames.max > 1) {
+        if (this.moving && this.frames.max > 1) {
             this.frames.elapsed++;
-        }
-        if (this.frames.elapsed % SPRITE_ANIMATION_FRAME_RATE === 0) {
-            if (this.frames.val < this.frames.max - 1) this.frames.val++;
-            else this.frames.val = 0;
+            if (this.frames.elapsed % SPRITE_ANIMATION_FRAME_RATE === 0) {
+                this.frames.val = (this.frames.val + 1) % this.frames.max;
+            }
+        } else {
+            this.frames.val = 0; // Reset to first frame when not moving
         }
     }
 }

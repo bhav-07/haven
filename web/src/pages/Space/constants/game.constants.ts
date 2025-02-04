@@ -1,6 +1,6 @@
 export const MAP_TILES = 120;
 export const BOUNDARY_SIZE = 24;
-export const MOVEMENT_SPEED = 6;
+export const MOVEMENT_SPEED = 10;
 export const OFFSET = {
     x: -500,
     y: -560,
@@ -12,4 +12,4 @@ export const SCREEN = {
     height: window.outerHeight,
 } as const;
 
-export const SPRITE_ANIMATION_FRAME_RATE = 8;
+export const SPRITE_ANIMATION_FRAME_RATE = 5;
