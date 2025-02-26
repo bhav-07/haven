@@ -48,7 +48,8 @@ interface Space {
 
 const SpaceCard = (Space: Space) => {
   return (
-    <div
+    <a
+      href={`/space/${Space.ID}`}
       key={Space.ID}
       className="rounded-xl hover:scale-[1.02] md:transition-all ease-in-out duration-500 text-start md:space-y-2 space-y-1 bg-gradient-to-br from-[#fdfcfb] to-[#fff1e6] text-neutral-800 p-3"
     >
@@ -62,7 +63,7 @@ const SpaceCard = (Space: Space) => {
         <h1 className="text-2xl text-neutral-700">{Space.Name}</h1>
       </div>
       <h1 className="text-xl">{Space.Members}</h1>
-    </div>
+    </a>
   );
 };
 

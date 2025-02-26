@@ -4,8 +4,8 @@ import { User } from "./authProvider";
 interface AuthContextType {
   isAuthenticated: boolean;
   setIsAuthenticated: (value: boolean) => void;
-  isLoading: boolean;
-  setIsLoading: (value: boolean) => void;
+  isAuthLoading: boolean;
+  setIsAuthLoading: (value: boolean) => void;
   user: User | null;
 }
 

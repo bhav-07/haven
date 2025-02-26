@@ -19,7 +19,8 @@ export const rectangularCollision = (
 export const initializeCollisionBoundaries = (
     boundariesRef: React.MutableRefObject<Boundary[]>,
     movablesRef: React.MutableRefObject<(Boundary | Sprite)[]>,
-    mapRef: React.MutableRefObject<Sprite | null>
+    mapRef: React.MutableRefObject<Sprite | null>,
+    otherPlayerRefs: React.MutableRefObject<Sprite[]>
 ) => {
     const boundaries: Boundary[] = [];
     const collisionsMap: number[][] = [];
@@ -30,7 +31,7 @@ export const initializeCollisionBoundaries = (
 
     collisionsMap.forEach((row, i) => {
         row.forEach((symbol, j) => {
-            if (symbol === 107127 || symbol === 107128) {
+            if (symbol === 107127) {
                 boundaries.push(
                     new Boundary({
                         x: j * Boundary.SIZE + OFFSET.x,
@@ -42,5 +43,5 @@ export const initializeCollisionBoundaries = (
     });
 
     boundariesRef.current = boundaries;
-    movablesRef.current = [mapRef.current!, ...boundaries];
+    movablesRef.current = [mapRef.current!, ...boundaries, ...otherPlayerRefs.current];
 };

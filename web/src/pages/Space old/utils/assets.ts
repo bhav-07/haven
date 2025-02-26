@@ -11,6 +11,9 @@ export const initializeGameAssets = async (canvas: HTMLCanvasElement, boundaries
     movablesRef: React.MutableRefObject<(Boundary | Sprite)[]>,
     mapRef: React.MutableRefObject<Sprite | null>,
     playerRef: React.MutableRefObject<Sprite | null>,
+    otherPlayerRefs: React.MutableRefObject<Sprite[]>,
+    id: number | undefined,
+    name: string | undefined,
 ) => {
     const images = {
         map: createImage("/officecozy.png"),
@@ -30,6 +33,8 @@ export const initializeGameAssets = async (canvas: HTMLCanvasElement, boundaries
     );
 
     playerRef.current = new Sprite({
+        id: String(id!),
+        name: name!,
         position: {
             x: canvas.width / 2 - 240 / 8,
             y: canvas.height / 2 - 102 / 2,
@@ -45,13 +50,33 @@ export const initializeGameAssets = async (canvas: HTMLCanvasElement, boundaries
         },
     });
 
+    const otherPlayer = new Sprite({
+        id: String(id!),
+        name: name!,
+        position: {
+            x: canvas.width / 2 - 240 / 8,
+            y: canvas.height / 2 - 102 / 2,
+        },
+        velocity: { x: 0, y: 0 },
+        image: images.playerDown,
+        frames: { max: 4 },
+        sprites: {
+            up: images.playerUp,
+            down: images.playerDown,
+            left: images.playerLeft,
+            right: images.playerRight,
+        },
+    })
+
+    otherPlayerRefs.current = [otherPlayer]
+
     mapRef.current = new Sprite({
         position: { x: OFFSET.x, y: OFFSET.y },
         velocity: { x: 0, y: 0 },
         image: images.map,
     });
 
-    initializeCollisionBoundaries(boundariesRef, movablesRef, mapRef);
+    initializeCollisionBoundaries(boundariesRef, movablesRef, mapRef, otherPlayerRefs);
 };
 
 const createImage = (src: string): HTMLImageElement => {

@@ -25,7 +25,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
   axios.defaults.withCredentials = true;
@@ -33,7 +33,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        setIsLoading(true);
+        setIsAuthLoading(true);
         const response = await axios.get(`${API_BASE_URL}/auth/me`);
         const data: UserResponse = await response.data;
         if (data.status === "success") {
@@ -48,7 +48,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAuthenticated(false);
         setUser(null);
       } finally {
-        setIsLoading(false);
+        setIsAuthLoading(false);
       }
     };
 
@@ -59,14 +59,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       isAuthenticated,
       setIsAuthenticated,
-      isLoading,
-      setIsLoading,
+      isAuthLoading: isAuthLoading,
+      setIsAuthLoading: setIsAuthLoading,
       user,
     }),
-    [isAuthenticated, isLoading, user]
+    [isAuthenticated, isAuthLoading, user]
   );
 
-  if (isLoading) {
+  if (isAuthLoading) {
     return null;
   }
 

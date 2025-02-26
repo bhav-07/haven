@@ -3,9 +3,9 @@ import { useAuth } from "./authContext";
 import Loading from "../components/global/loader";
 
 export const ProtectedRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isAuthLoading } = useAuth();
 
-  if (isLoading) {
+  if (isAuthLoading) {
     return (
       <div className="flex w-screen h-svh justify-center items-center">
         <Loading mode="dark" size="large" />

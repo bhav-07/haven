@@ -29,6 +29,8 @@ export interface Keys {
 }
 
 export interface SpriteProps {
+    id?: string,
+    name?: string,
     position: Position;
     velocity: Velocity;
     image: HTMLImageElement;

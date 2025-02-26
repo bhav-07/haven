@@ -2,6 +2,8 @@ import { SPRITE_ANIMATION_FRAME_RATE } from '../constants/game.constants';
 import { Frames, Position, SpriteProps, Sprites, Velocity } from '../types/space.types';
 
 export class Sprite {
+    id?: string;
+    name?: string;
     position: Position;
     velocity: Velocity;
     image: HTMLImageElement;
@@ -12,12 +14,16 @@ export class Sprite {
     sprites?: Sprites;
 
     constructor({
+        id,
+        name,
         position,
         velocity,
         image,
         frames = { max: 1 },
         sprites,
     }: SpriteProps) {
+        this.id = id;
+        this.name = name;
         this.position = position;
         this.velocity = velocity;
         this.image = image;
@@ -35,8 +41,11 @@ export class Sprite {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D): void {
+    draw(ctx: CanvasRenderingContext2D, positionOverride?: Position): void {
         if (!this.image) return;
+
+        const drawX = positionOverride ? positionOverride.x : this.position.x;
+        const drawY = positionOverride ? positionOverride.y : this.position.y;
 
         ctx.drawImage(
             this.image,
@@ -44,8 +53,8 @@ export class Sprite {
             0,
             this.image.width / this.frames.max,
             this.image.height,
-            this.position.x,
-            this.position.y,
+            drawX,
+            drawY,
             this.image.width / this.frames.max,
             this.image.height
         );
@@ -54,9 +63,10 @@ export class Sprite {
             this.frames.elapsed++;
             if (this.frames.elapsed % SPRITE_ANIMATION_FRAME_RATE === 0) {
                 this.frames.val = (this.frames.val + 1) % this.frames.max;
+                console.log("moving:", this.moving)
             }
         } else {
-            this.frames.val = 0; // Reset to first frame when not moving
+            this.frames.val = 0;
         }
     }
 }

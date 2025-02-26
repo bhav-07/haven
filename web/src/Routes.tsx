@@ -1,13 +1,12 @@
 import { RouterProvider, createBrowserRouter } from "react-router";
 import Signin from "./pages/Signin";
 import Home from "./pages/Home";
-// import { ProtectedRoute } from "./auth/protectedRoute";
-// import Game from "./pages/Space";
 
 import Landing from "./pages/Landing";
 import { ProtectedRoute } from "./auth/protectedRoute";
-import Game from "./pages/Space";
 import Unauthozied from "./pages/401";
+import Space from "./pages/Space";
+import NotFound from "./pages/404";
 
 const Routes = () => {
   const routesForPublic = [
@@ -28,8 +27,12 @@ const Routes = () => {
       element: <Signin />,
     },
     {
-      path: "/401",
+      path: "/unauthorized",
       element: <Unauthozied />,
+    },
+    {
+      path: "/not-found",
+      element: <NotFound />,
     },
   ];
 
@@ -40,7 +43,7 @@ const Routes = () => {
       children: [
         {
           path: "/space/:spaceId",
-          element: <Game />,
+          element: <Space />,
         },
         {
           path: "/home",
