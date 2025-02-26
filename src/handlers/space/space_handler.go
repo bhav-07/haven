@@ -89,7 +89,7 @@ func SpaceHandlers(route fiber.Router, db *gorm.DB) {
 			First(&space)
 		if result.Error != nil {
 			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 					"status": "error",
 					"error":  "space not found or user is not a member",
 				})
