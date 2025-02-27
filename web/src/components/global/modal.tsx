@@ -24,7 +24,7 @@ const Modal: React.FC<ModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscapeKey);
-      document.body.style.overflow = "hidden";
+      // document.body.style.overflow = "hidden";
     }
 
     return () => {

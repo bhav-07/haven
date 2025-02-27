@@ -19,9 +19,8 @@ export const handleSpaceWebSocket = (wsRef: React.MutableRefObject<WebSocket | n
 
         wsRef.current.onmessage = (event) => {
             const message = JSON.parse(event.data);
-            console.log("Received message:", message);
             if (message.type == "player_joined") {
-                toast.success(`${message.content.player_name} joined`);
+                toast.success(`${message.content.player_name} joined the space`);
             }
         };
     }

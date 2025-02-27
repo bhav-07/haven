@@ -13,7 +13,7 @@ export const useApi = () => {
         setError(null);
         try {
             const response = await axios.patch(`${API_BASE_URL}/space/${spaceId}/join`);
-            console.log(response.data);
+            // console.log(response.data);
             if (response.data.status == "error") {
                 setError(response.data.status.error)
             }
@@ -33,7 +33,7 @@ export const useApi = () => {
         setError(null);
         try {
             const response = await axios.get(`${API_BASE_URL}/user/spaces`);
-            console.log(response.data);
+            // console.log(response.data);
             return response.data;
         } catch (error: any) {
             const errorMessage = error.response?.data?.error || 'Failed to fetch user spaces';
@@ -52,7 +52,7 @@ export const useApi = () => {
             const response = await axios.post(`${API_BASE_URL}/space`, {
                 name: spaceName
             });
-            console.log(response.data);
+            // console.log(response.data);
             return response.data;
         } catch (error: any) {
             const errorMessage = error.response?.data?.error || 'Failed to create user spaces';

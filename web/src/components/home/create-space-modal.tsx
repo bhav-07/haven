@@ -49,7 +49,7 @@ const CreateSpaceModal = ({ onSuccess }: { onSuccess: () => void }) => {
       <Toaster />
       <Button
         variant="light"
-        className="bg-gradient-to-br from-[#fdfcfb] to-[#fff1e6] rounded-lg text-black px-4 py-2"
+        className="bg-gradient-to-br from-[#fdfcfb] to-[#fff1e6] rounded-lg text-black md:px-4 md:py-2 px-2 py-1"
         onClick={() => {
           setIsModalOpen(true);
         }}

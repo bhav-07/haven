@@ -22,7 +22,7 @@ const Signin = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleLogin = useGoogleLogin({
     onSuccess: async (codeResp) => {
-      console.log("CodeRespo: ", codeResp);
+      // console.log("CodeRespo: ", codeResp);
       try {
         const tokenResp = await fetch(
           `http://localhost:8080/auth/google/callback?code=${codeResp.code}`,
