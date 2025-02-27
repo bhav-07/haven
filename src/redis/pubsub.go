@@ -113,7 +113,7 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 		Name:     userName,
 		SpaceID:  spaceIdstring,
 		Conn:     c,
-		Position: Position{X: 0, Y: 0},
+		Position: Position{X: 850, Y: 1040},
 	}
 
 	gs.mu.Lock()
@@ -162,9 +162,10 @@ func (gs *SpaceServer) handlePlayerMessages(player *Player) {
 		case "position_update":
 			player.Position = msgData.Position
 			gs.publishToRedis("game:positions", "position_update", map[string]interface{}{
-				"player_id": player.ID,
-				"space_id":  player.SpaceID,
-				"position":  msgData.Position,
+				"player_id":   player.ID,
+				"space_id":    player.SpaceID,
+				"position":    msgData.Position,
+				"player_name": player.Name,
 			})
 		}
 	}
@@ -182,8 +183,9 @@ func (gs *SpaceServer) handlePlayerDisconnect(player *Player) {
 	player.Conn.Close()
 
 	gs.publishToRedis("game:events", "player_left", map[string]interface{}{
-		"player_id": player.ID,
-		"space_id":  player.SpaceID,
+		"player_id":   player.ID,
+		"player_name": player.Name,
+		"space_id":    player.SpaceID,
 	})
 }
 
