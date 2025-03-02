@@ -3,17 +3,12 @@ import Phaser from "phaser";
 import MainScene from "./MainScene";
 import { Toaster } from "react-hot-toast";
 import Loading from "../global/loader";
-import { Player } from "../../hooks/useWebSocket";
+import useWebSocket from "../../hooks/useWebSocket";
 
-type PhaserSpaceProps = {
-  spaceId: string;
-  ws: WebSocket | null;
-  players: Record<string, Player>;
-};
-
-const PhaserSpace = ({ spaceId, ws, players }: PhaserSpaceProps) => {
+const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   const spaceRef = useRef<Phaser.Game | null>(null);
   const [loading, setLoading] = useState(true);
+  const { playersRef, ws, localUserId } = useWebSocket(spaceId);
 
   useEffect(() => {
     if (spaceRef.current) return;
@@ -31,7 +26,7 @@ const PhaserSpace = ({ spaceId, ws, players }: PhaserSpaceProps) => {
     };
 
     spaceRef.current = new Phaser.Game(config);
-    spaceRef.current.scene.start("MainScene", { ws, players });
+    spaceRef.current.scene.start("MainScene", { ws, playersRef, localUserId });
 
     setLoading(false);
     return () => {
@@ -40,18 +35,6 @@ const PhaserSpace = ({ spaceId, ws, players }: PhaserSpaceProps) => {
       spaceRef.current = null;
     };
   }, [ws]);
-
-  useEffect(() => {
-    if (spaceRef.current && ws) {
-      const mainScene = spaceRef.current.scene.getScene("MainScene");
-      if (mainScene) {
-        // @ts-expect-error - TypeScript might complain about this, but it works
-        mainScene.updateOtherPlayers(players);
-      } else {
-        console.error("MainScene not found!");
-      }
-    }
-  }, [players]);
 
   return (
     <div className="w-full h-full flex items-center justify-center">

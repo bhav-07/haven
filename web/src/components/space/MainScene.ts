@@ -2,12 +2,14 @@ import { Player } from "../../hooks/useWebSocket";
 
 class MainScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
-    players: Record<string, Phaser.Physics.Arcade.Sprite> = {};
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     collisionLayer!: Phaser.Physics.Arcade.StaticGroup;
     positionText!: Phaser.GameObjects.Text;
     ws: WebSocket | null = null;
     lastSentTime: number = 0;
+    playersRef!: React.MutableRefObject<Record<string, Player>>;
+    otherPlayers: Map<string, Phaser.Physics.Arcade.Sprite> = new Map();
+    localUserId!: string;
 
     lastDirection: "left" | "right" | "up" | "down" = "down";
 
@@ -19,15 +21,14 @@ class MainScene extends Phaser.Scene {
         super("MainScene");
     }
 
-    init(data: { ws: WebSocket, players: Record<string, Player> }) {
-        // console.log("MainScene initialized with data:", data);
+    init(data: {
+        ws: WebSocket;
+        playersRef: React.MutableRefObject<Record<string, Player>>;
+        localUserId: string;
+    }) {
         this.ws = data.ws;
-        if (data.players) {
-            // console.log("Initial players:", data.players);
-            Object.keys(data.players).forEach((id) => {
-                this.addOtherPlayer(data.players[id]);
-            });
-        }
+        this.playersRef = data.playersRef;
+        this.localUserId = data.localUserId;
     }
 
     preload() {
@@ -40,7 +41,7 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-        this.cameras.main.setZoom(1.5);
+        this.cameras.main.setZoom(1);
 
         this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
@@ -113,71 +114,68 @@ class MainScene extends Phaser.Scene {
                 color: "#ffffff",
             })
             .setScrollFactor(0);
+
+        this.updateOtherPlayers();
     }
 
-    addOtherPlayer(playerData: Player) {
-        // console.log("Adding player:", playerData);
-        if (!this.players[playerData.id]) {
-            const otherPlayer = this.physics.add.sprite(
-                playerData.position.x,
-                playerData.position.y,
-                "player"
-            ).setTint(0x00ff00);
+    getIdleFrame(direction: "left" | "right" | "up" | "down"): number {
+        const idleFrames = {
+            left: 8,
+            right: 0,
+            up: 4,
+            down: 12,
+        };
+        return idleFrames[direction];
+    }
 
-            // Add collision
-            this.physics.add.collider(otherPlayer, this.collisionLayer);
+    updateOtherPlayers() {
+        const currentPlayers = this.playersRef.current;
+        const currentPlayerIds = Object.keys(currentPlayers);
 
-            // Add name display if available
-            if (playerData.name) {
+        for (const playerId of currentPlayerIds) {
+            const playerData = currentPlayers[playerId];
+
+            if (!this.otherPlayers.has(playerId)) {
+                const otherPlayer = this.physics.add.sprite(
+                    playerData.position.x,
+                    playerData.position.y,
+                    "player"
+                );
+
                 const nameText = this.add.text(
                     playerData.position.x,
-                    playerData.position.y - 20,
+                    playerData.position.y - 40,
                     playerData.name,
-                    { fontSize: '12px', color: '#ffffff' }
+                    {
+                        fontSize: "14px",
+                        color: "#ffffff",
+                        backgroundColor: "#00000080",
+                        padding: { x: 4, y: 2 }
+                    }
                 );
-                nameText.setOrigin(0.5, 0.5);
+
                 otherPlayer.setData('nameText', nameText);
-            }
-
-            this.players[playerData.id] = otherPlayer;
-            // console.log(`Player ${playerData.id} added at (${playerData.position.x}, ${playerData.position.y})`);
-        }
-    }
-
-
-    updateOtherPlayers(players: Record<string, Player>) {
-        // console.log("Updating players in scene:", players);
-
-        // Handle player removal first
-        const currentPlayerIds = Object.keys(this.players);
-        const updatedPlayerIds = Object.keys(players);
-
-        currentPlayerIds.forEach((id) => {
-            if (!updatedPlayerIds.includes(id)) {
-                // Player has left, remove them
-                if (this.players[id]) {
-                    const nameText = this.players[id].getData('nameText');
-                    if (nameText) nameText.destroy();
-                    this.players[id].destroy();
-                    delete this.players[id];
-                    console.log(`Player ${id} removed`);
-                }
-            }
-        });
-
-        // Then add/update remaining players
-        updatedPlayerIds.forEach((id) => {
-            if (!this.players[id]) {
-                this.addOtherPlayer(players[id]);
+                this.otherPlayers.set(playerId, otherPlayer);
             } else {
-                // Update position
-                this.players[id].setPosition(players[id].position.x, players[id].position.y);
+                const otherPlayer = this.otherPlayers.get(playerId)!;
+                const nameText = otherPlayer.getData('nameText') as Phaser.GameObjects.Text;
+                const lastPosition = { x: otherPlayer.x, y: otherPlayer.y };
 
-                // Update name text position if it exists
-                const nameText = this.players[id].getData('nameText');
-                if (nameText) {
-                    nameText.setPosition(players[id].position.x, players[id].position.y - 20);
+                if (lastPosition.x !== playerData.position.x || lastPosition.y !== playerData.position.y) {
+                    otherPlayer.setPosition(playerData.position.x, playerData.position.y);
+                    nameText.setPosition(playerData.position.x - nameText.width / 2, playerData.position.y - 40);
                 }
+            }
+        };
+        this.otherPlayers.forEach((sprite, playerId) => {
+            if (!currentPlayerIds.includes(playerId)) {
+                const nameText = sprite.getData('nameText') as Phaser.GameObjects.Text;
+                if (nameText) {
+                    nameText.destroy();
+                }
+
+                sprite.destroy();
+                this.otherPlayers.delete(playerId);
             }
         });
     }
@@ -241,16 +239,11 @@ class MainScene extends Phaser.Scene {
         }
 
         this.positionText.setText(
-            `X: ${Math.floor(this.player.x)}, Y: ${Math.floor(this.player.y)}`
+            `X: ${Math.floor(this.player.x)}, Y: ${Math.floor(this.player.y)} Players: ${Object.keys(this.playersRef.current).length}`
         );
 
-        Object.keys(this.players).forEach((id) => {
-            const player = this.players[id];
-            const nameText = player.getData('nameText');
-            if (nameText) {
-                nameText.setPosition(player.x, player.y - 20);
-            }
-        });
+        // console.log(`Players: ${Object.keys(this.playersRef.current).length}`)
+        this.updateOtherPlayers();
 
     }
 

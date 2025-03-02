@@ -123,6 +123,26 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 	gs.spaces[spaceIdstring][userIdStr] = player
 	gs.mu.Unlock()
 
+	gs.mu.Lock()
+	var currentPlayersInSpace []Player
+	for userId, players := range gs.spaces[spaceIdstring] {
+		if userId != userIdStr {
+			//Send all players info except user themselves
+			currentPlayersInSpace = append(currentPlayersInSpace, *players)
+		}
+	}
+	gs.mu.Unlock()
+
+	joinMessage := map[string]interface{}{
+		"type":    "existing_players",
+		"content": currentPlayersInSpace,
+		"time":    time.Now(),
+	}
+
+	if err := player.Conn.WriteJSON(joinMessage); err != nil {
+		log.Errorf("Error sending existing players to new player: %v", err)
+	}
+
 	gs.publishToRedis("game:events", "player_joined", map[string]interface{}{
 		"player_id":   player.ID,
 		"player_name": player.Name,

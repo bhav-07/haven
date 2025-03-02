@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useApi } from "../../services/api";
-import useWebSocket from "../../hooks/useWebSocket";
 import { Toaster } from "react-hot-toast";
 import PhaserSpace from "../../components/space/PhaserSpace";
 
@@ -12,7 +12,7 @@ const Space = () => {
   const [space, setSpace] = useState<any | null>();
   const { getSpace } = useApi();
   const [error, setError] = useState<string | null>(null);
-  const { ws, players } = useWebSocket(spaceId!);
+  // const { ws, playersRef, subscribe } = useWebSocket(spaceId!);
 
   useEffect(() => {
     getSpace(spaceId!)
@@ -35,7 +35,7 @@ const Space = () => {
       {error ? (
         <h1 className="text-red-200 text-2xl">{error}</h1>
       ) : (
-        <PhaserSpace spaceId={spaceId!} ws={ws} players={players} />
+        <PhaserSpace spaceId={spaceId!} />
       )}
     </div>
   );
