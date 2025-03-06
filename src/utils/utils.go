@@ -50,11 +50,12 @@ func GetUserInfo(accessToken string) (*models.User, error) {
 
 func SignJWT(userInfo *models.User) (string, error) {
 	claims := jwt.MapClaims{
-		"id":    userInfo.ID,
-		"name":  userInfo.Name,
-		"email": userInfo.Email,
-		"iss":   "oauth-app-golang",
-		"exp":   time.Now().Add(time.Hour * 24 * 30).Unix(), // 30 days
+		"id":       userInfo.ID,
+		"name":     userInfo.Name,
+		"email":    userInfo.Email,
+		"nickname": userInfo.Nickname,
+		"iss":      "oauth-app-golang",
+		"exp":      time.Now().Add(time.Hour * 24 * 30).Unix(), // 30 days
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -11,6 +11,7 @@ type UserResponse = {
     id: number;
     iss: string;
     name: string;
+    nickname: string;
   };
 };
 

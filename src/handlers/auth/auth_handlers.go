@@ -43,8 +43,9 @@ func AuthHandlers(route fiber.Router, db *gorm.DB) {
 
 		if result.Error == gorm.ErrRecordNotFound {
 			newUser := models.User{
-				Email: userInfo.Email,
-				Name:  userInfo.Name,
+				Email:    userInfo.Email,
+				Name:     userInfo.Name,
+				Nickname: userInfo.Name,
 			}
 
 			if err := db.Create(&newUser).Error; err != nil {
@@ -63,6 +64,7 @@ func AuthHandlers(route fiber.Router, db *gorm.DB) {
 			})
 		} else {
 			userInfo.ID = user.ID
+			userInfo.Nickname = user.Nickname
 		}
 
 		signedToken, err := utils.SignJWT(userInfo)

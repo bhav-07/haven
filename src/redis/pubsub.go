@@ -27,6 +27,7 @@ type Player struct {
 	ID       string          `json:"id"`
 	Name     string          `json:"name"`
 	SpaceID  string          `json:"space_id"`
+	Nickname string          `json:"nickname"`
 	Position Position        `json:"position"`
 	Conn     *websocket.Conn `json:"-"`
 }
@@ -99,6 +100,7 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 	}
 
 	userName := c.Locals("userName").(string)
+	nickName := c.Locals("nickName").(string)
 
 	spaceIdstring := c.Params("id")
 	// spaceId, err := strconv.ParseUint(spaceIdstring, 10, 64)
@@ -112,6 +114,7 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 		ID:       userIdStr,
 		Name:     userName,
 		SpaceID:  spaceIdstring,
+		Nickname: nickName,
 		Conn:     c,
 		Position: Position{X: 850, Y: 1040},
 	}
@@ -144,10 +147,11 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 	}
 
 	gs.publishToRedis("game:events", "player_joined", map[string]interface{}{
-		"player_id":   player.ID,
-		"player_name": player.Name,
-		"space_id":    spaceIdstring,
-		"position":    player.Position,
+		"player_id":       player.ID,
+		"player_nickname": player.Nickname,
+		"player_name":     player.Name,
+		"space_id":        spaceIdstring,
+		"position":        player.Position,
 	})
 
 	gs.handlePlayerMessages(player)
@@ -182,10 +186,11 @@ func (gs *SpaceServer) handlePlayerMessages(player *Player) {
 		case "position_update":
 			player.Position = msgData.Position
 			gs.publishToRedis("game:positions", "position_update", map[string]interface{}{
-				"player_id":   player.ID,
-				"space_id":    player.SpaceID,
-				"position":    msgData.Position,
-				"player_name": player.Name,
+				"player_id":       player.ID,
+				"space_id":        player.SpaceID,
+				"position":        msgData.Position,
+				"player_name":     player.Name,
+				"player_nickname": player.Nickname,
 			})
 		}
 	}
@@ -203,9 +208,10 @@ func (gs *SpaceServer) handlePlayerDisconnect(player *Player) {
 	player.Conn.Close()
 
 	gs.publishToRedis("game:events", "player_left", map[string]interface{}{
-		"player_id":   player.ID,
-		"player_name": player.Name,
-		"space_id":    player.SpaceID,
+		"player_id":       player.ID,
+		"player_name":     player.Name,
+		"space_id":        player.SpaceID,
+		"player_nickname": player.Nickname,
 	})
 }
 

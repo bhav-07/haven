@@ -10,6 +10,7 @@ type User struct {
 	Name      string  `json:"name" gorm:"type:text;not null"`
 	Spaces    []Space `gorm:"many2many:user_spaces;"`
 	Character string  `json:"character" gorm:"default:Alex"`
+	Nickname  string  `json:"nickname" gorm:"type:text"`
 }
 
 type Space struct {
