@@ -63,14 +63,14 @@ const CreateSpaceModal = ({ onSuccess }: { onSuccess: () => void }) => {
         className="text-neutral-800 space-y-4"
       >
         <p className="text-sm text-neutral-600">
-          Enter the name for your space in the below textarea and click create.
+          Enter the name for your space in the below textarea.
         </p>
         <div>
           <input
             value={spaceName}
             onChange={handleInputChange}
             placeholder="Name for your space"
-            className={`w-full p-2 focus:border-neutral-400 outline-none bg-transparent border-2 rounded-lg
+            className={`w-full p-2 focus border-neutral-300 focus:border-neutral-400 transition-colors ease-in-out outline-none bg-transparent border-2 rounded-lg
               ${error ? "border-red-500 text-red-500" : "border-neutral-200"}`}
           />
           {error && <p className="text-red-500 text-sm mt-1">{error}</p>}

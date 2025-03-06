@@ -20,7 +20,7 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       parent: "game-container",
       physics: {
         default: "arcade",
-        arcade: { debug: true, width: 1920, height: 1920 },
+        arcade: { debug: false, width: 1920, height: 1920 },
       },
       scene: [MainScene],
     };

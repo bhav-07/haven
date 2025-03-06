@@ -3,6 +3,7 @@ package space
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/bhav-07/haven/models"
@@ -84,7 +85,7 @@ func SpaceHandlers(route fiber.Router, db *gorm.DB) {
 		var space models.Space
 		result := db.Joins("JOIN user_spaces ON user_spaces.space_id = spaces.id").
 			Where("spaces.id = ? AND user_spaces.user_id = ?", spaceId, userId).Preload("Members", func(db *gorm.DB) *gorm.DB {
-			return db.Select("users.id", "users.name")
+			return db.Select("users.id", "users.name", "users.nickname")
 		}).
 			First(&space)
 		if result.Error != nil {
@@ -158,6 +159,57 @@ func SpaceHandlers(route fiber.Router, db *gorm.DB) {
 			"status":  "success",
 			"message": "User successfully added to the space",
 		})
+	})
+
+	route.Delete("/space/:id", func(c *fiber.Ctx) error {
+		userId, ok := c.Locals("userId").(uint)
+		fmt.Println(userId)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"status": "error",
+				"error":  "Unable to get user details. Please login again",
+			})
+		}
+
+		spaceIdstring := c.Params("id")
+		spaceId, err := strconv.ParseUint(spaceIdstring, 10, 64)
+
+		if err != nil {
+			log.Warn("Unable to convert string to uint")
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status": "error",
+				"error":  "Unable to convert string to uint",
+			})
+		}
+
+		var space models.Space
+		if err := db.First(&space, spaceId).Error; err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"status": "error",
+				"error":  "Space not found",
+			})
+		}
+		if space.CreatedBy != userId {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"status": "error",
+				"error":  "You are not authorized to delete this space",
+			})
+		}
+
+		if err := db.Delete(&space).Error; err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status": "error",
+				"error":  "Failed to delete space",
+			})
+		}
+
+		successMessage := fmt.Sprintf("Space #%s %s deleted successfully", spaceIdstring, space.Name)
+
+		return c.JSON(fiber.Map{
+			"status":  "success",
+			"message": successMessage,
+		})
+
 	})
 
 	route.Use("/space/ws", func(c *fiber.Ctx) error {

@@ -24,12 +24,10 @@ const Modal: React.FC<ModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscapeKey);
-      // document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscapeKey);
-      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 
@@ -37,11 +35,11 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-lg shadow-xl p-6 max-w-md w-full ${className}`}
+        className={`bg-white rounded-lg shadow-xl p-6 mx-4 w-full sm:w-auto max-w-lg sm:max-w-xl md:max-w-2xl ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (

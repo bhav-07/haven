@@ -80,11 +80,28 @@ export const useApi = () => {
         }
     }, []);
 
+    const deleteSpace = async (spaceId: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const response = await axios.delete(`${API_BASE_URL}/space/${spaceId}`);
+            return response.data;
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.error || 'Failed to delete space';
+            setError(errorMessage);
+            console.error('Error deleting space:', error);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return {
         createSpace,
         joinSpace,
         getUserSpaces,
         getSpace,
+        deleteSpace,
         isLoading,
         error
     };

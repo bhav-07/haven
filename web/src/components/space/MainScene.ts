@@ -32,7 +32,7 @@ class MainScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("map", "/gatherofficecozy.png");
+        this.load.image("map", "/officecozy.png");
         this.load.json("collisions", "/collisions.json");
         this.load.spritesheet("player", "/fullsprite.png", {
             frameWidth: 18.75,
@@ -60,8 +60,8 @@ class MainScene extends Phaser.Scene {
                             y * this.tileSize + this.tileSize / 2,
                             this.tileSize,
                             this.tileSize,
-                            0xff0000,
-                            0.3
+                            // 0xff0000,
+                            // 0
                         );
                         this.physics.add.existing(collider, true);
                         this.collisionLayer.add(collider);
@@ -133,6 +133,8 @@ class MainScene extends Phaser.Scene {
         const currentPlayerIds = Object.keys(currentPlayers);
 
         for (const playerId of currentPlayerIds) {
+
+            if (playerId === this.localUserId) continue;
             const playerData = currentPlayers[playerId];
 
             if (!this.otherPlayers.has(playerId)) {
@@ -224,7 +226,7 @@ class MainScene extends Phaser.Scene {
             moved &&
             this.ws &&
             this.ws.readyState === WebSocket.OPEN &&
-            time - this.lastSentTime > 10 //Rate limiting
+            time - this.lastSentTime > import.meta.env.VITE_WS_RATE_LIMIT
         ) {
             this.ws.send(
                 JSON.stringify({

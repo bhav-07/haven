@@ -70,7 +70,7 @@ const JoinSpaceModal = ({ onSuccess }: { onSuccess: () => void }) => {
             value={spaceId}
             onChange={handleInputChange}
             placeholder="ID of the space"
-            className={`[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full p-2 focus:border-neutral-400 outline-none bg-transparent border-2 rounded-lg
+            className={`border-neutral-300 focus:border-neutral-400 transition-colors ease-in-out [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full p-2 outline-none bg-transparent border-2 rounded-lg
               ${error ? "border-red-500 text-red-500" : "border-neutral-200"}`}
           />
           {error && <p className="text-red-500 text-sm mt-1">{error}</p>}

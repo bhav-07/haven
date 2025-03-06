@@ -8,7 +8,7 @@ const Navbar = () => {
   const navLinks = [
     { href: "/home", label: "Home" },
     { href: "/about", label: "About" },
-    { href: "/services", label: "Services" },
+    { href: "/my-profile", label: "Profile" },
     { href: "/contact", label: "Contact" },
   ];
 
@@ -31,7 +31,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-lg hover:text-slate-300 transition-colors"
+                className="text-lg  hover:text-slate-300 transition-colors"
               >
                 {link.label}
               </a>

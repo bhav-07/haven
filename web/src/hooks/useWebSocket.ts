@@ -64,9 +64,10 @@ const useWebSocket = (spaceId: string) => {
 
                 case "player_left": {
                     const updatedPlayers = { ...playersRef.current };
+                    const leavingPlayerName = updatedPlayers[message.content.player_id]?.name;
                     delete updatedPlayers[message.content.player_id];
                     playersRef.current = updatedPlayers;
-                    toast.error(`${updatedPlayers[message.content.player_id]?.name || 'A player'} left the space`);
+                    toast.error(`${leavingPlayerName || 'A player'} left the space`);
                     break;
                 }
 
