@@ -13,7 +13,7 @@ const Space = () => {
   const { getSpace } = useApi();
   const [error, setError] = useState<string | null>(null);
   // const { ws, playersRef, subscribe } = useWebSocket(spaceId!);
-
+  console.log(space);
   useEffect(() => {
     getSpace(spaceId!)
       .then((response) => setSpace(response.data))
