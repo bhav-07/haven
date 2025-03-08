@@ -1,0 +1,28 @@
+# Build stage
+FROM node:20-alpine AS builder
+
+# Install pnpm
+RUN npm i pnpm@8.15.6 -g
+
+WORKDIR /app
+
+# Copy package.json and lockfile
+COPY web/package.json web/pnpm-lock.yaml* ./
+
+# Install dependencies
+RUN pnpm install
+
+# Copy remaining source files
+COPY web/ .
+
+# Build the frontend
+RUN pnpm build
+
+# Production stage
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY web/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

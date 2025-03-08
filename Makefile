@@ -1,5 +1,5 @@
 frontend:
 	@cd web && pnpm dev
 
-backend:
+server:
 	@cd src && air
