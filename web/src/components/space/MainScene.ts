@@ -1,4 +1,5 @@
 import { Player } from "../../hooks/useWebSocket";
+import Space from "../../pages/Space";
 
 class MainScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
@@ -10,6 +11,11 @@ class MainScene extends Phaser.Scene {
     playersRef!: React.MutableRefObject<Record<string, Player>>;
     otherPlayers: Map<string, Phaser.Physics.Arcade.Sprite> = new Map();
     localUserId!: string;
+    whiteboardInteractText!: Phaser.GameObjects.Text;
+    whiteboardInteractZone!: Phaser.Geom.Rectangle;
+    // space!: Space;
+    // spaceName!: Phaser.GameObjects.Text;
+    onShowWhiteboardModal!: () => void;
 
     lastDirection: "left" | "right" | "up" | "down" = "down";
 
@@ -25,10 +31,14 @@ class MainScene extends Phaser.Scene {
         ws: WebSocket;
         playersRef: React.MutableRefObject<Record<string, Player>>;
         localUserId: string;
+        space: Space;
+        onShowWhiteboardModal: () => void;
     }) {
         this.ws = data.ws;
         this.playersRef = data.playersRef;
         this.localUserId = data.localUserId;
+        // this.space = data.space;
+        this.onShowWhiteboardModal = data.onShowWhiteboardModal;
     }
 
     preload() {
@@ -41,11 +51,48 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-        this.cameras.main.setZoom(1);
+        this.cameras.main.setZoom(1.5);
 
         this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
         this.add.image(0, 0, "map").setOrigin(0, 0);
+
+        // const spaceName = this.add.text(
+        //     700, 1040,
+        //     this.space.name.toUpperCase(),
+        //     {
+        //         fontSize: "22px",
+        //         color: "#ffffff",
+        //         backgroundColor: "#00000080",
+        //         padding: { x: 4, y: 2 }
+        //     }
+        // ).setOrigin(0.5).setVisible(true);
+
+        // this.spaceName = spaceName
+
+        this.whiteboardInteractZone = new Phaser.Geom.Rectangle(820, 640, 300, 300);
+
+        this.input.keyboard!.on('keydown-E', () => {
+            const playerPoint = new Phaser.Geom.Point(this.player.x, this.player.y);
+            const isInZone = Phaser.Geom.Rectangle.ContainsPoint(this.whiteboardInteractZone, playerPoint);
+
+            if (isInZone && this.onShowWhiteboardModal) {
+                this.onShowWhiteboardModal();
+            }
+        });
+
+        const interactText = this.add.text(
+            980, 670,
+            "Press E to use whiteboard",
+            {
+                fontSize: "16px",
+                color: "#ffffff",
+                backgroundColor: "#00000080",
+                padding: { x: 4, y: 2 }
+            }
+        ).setOrigin(0.5).setVisible(true);
+
+        this.whiteboardInteractText = interactText;
 
         const collisionData = this.cache.json.get("collisions");
 
@@ -147,7 +194,7 @@ class MainScene extends Phaser.Scene {
                 const nameText = this.add.text(
                     playerData.position.x,
                     playerData.position.y - 40,
-                    playerData.name,
+                    playerData.nickname,
                     {
                         fontSize: "14px",
                         color: "#ffffff",
@@ -239,6 +286,10 @@ class MainScene extends Phaser.Scene {
             );
             this.lastSentTime = time;
         }
+
+        const playerPoint = new Phaser.Geom.Point(this.player.x, this.player.y);
+        const isInZone = Phaser.Geom.Rectangle.ContainsPoint(this.whiteboardInteractZone, playerPoint);
+        this.whiteboardInteractText.setVisible(isInZone);
 
         this.positionText.setText(
             `X: ${Math.floor(this.player.x)}, Y: ${Math.floor(this.player.y)} Players: ${Object.keys(this.playersRef.current).length}`

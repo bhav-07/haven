@@ -6,17 +6,33 @@ import { useApi } from "../../services/api";
 import { Toaster } from "react-hot-toast";
 import PhaserSpace from "../../components/space/PhaserSpace";
 
+type Space = {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  name: string;
+  created_by: number;
+  Members: {
+    ID: number;
+    name: string;
+    nickname: string;
+  }[];
+  map: string;
+};
+
 const Space = () => {
   const { spaceId } = useParams();
   const navigate = useNavigate();
-  const [space, setSpace] = useState<any | null>();
+  // const [space, setSpace] = useState<Space | null>(null);
   const { getSpace } = useApi();
   const [error, setError] = useState<string | null>(null);
   // const { ws, playersRef, subscribe } = useWebSocket(spaceId!);
-  console.log(space);
   useEffect(() => {
     getSpace(spaceId!)
-      .then((response) => setSpace(response.data))
+      .then((response) => {
+        // setSpace(response.data);
+        console.log("fetch", response);
+      })
       .catch((error: any) => {
         console.error("Error fetching spaces:", error);
         if (error.response?.status === 404) {

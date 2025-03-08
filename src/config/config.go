@@ -49,10 +49,10 @@ func GetGoogleOauthConfig() *oauth2.Config {
 }
 
 func GetCORSConfig() *cors.Config {
-	allowedOrigin := "http://localhost:5173"
+	allowedOrigin := "http://localhost:5173, http://localhost"
 	return &cors.Config{
 		AllowCredentials: true,
-		AllowOrigins:     allowedOrigin, // Use environment-based origin
+		AllowOrigins:     allowedOrigin,
 		AllowMethods:     "GET,POST,HEAD,PATCH,PUT,DELETE,OPTIONS",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, Set-Cookie",
 		ExposeHeaders:    "Set-Cookie",
@@ -61,8 +61,10 @@ func GetCORSConfig() *cors.Config {
 }
 
 func GetRedisConfig() *redis.Options {
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
 	return &redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
 		Password: "",
 		DB:       0,
 	}

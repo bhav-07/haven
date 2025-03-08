@@ -27,7 +27,7 @@ func init() {
 		panic(err)
 	}
 
-	err = db.DB.AutoMigrate(&models.User{}, &models.Space{})
+	err = db.DB.AutoMigrate(&models.User{}, &models.Space{}, &models.SpaceWhiteboard{})
 	if err != nil {
 		log.Error("Error migrating database", "error", err.Error())
 		panic(fmt.Sprintf("Error migrating database: %v", err))

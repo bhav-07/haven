@@ -8,7 +8,6 @@ import Unauthozied from "./pages/401";
 import Space from "./pages/Space";
 import NotFound from "./pages/404";
 import MyProfile from "./pages/MyProfile";
-import Whiteboard from "./pages/WhiteBoard";
 
 const Routes = () => {
   const routesForPublic = [
@@ -35,10 +34,6 @@ const Routes = () => {
     {
       path: "/not-found",
       element: <NotFound />,
-    },
-    {
-      path: "/wb",
-      element: <Whiteboard />,
     },
   ];
 

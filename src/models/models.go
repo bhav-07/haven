@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+
 	"gorm.io/gorm"
 )
 
@@ -15,8 +17,16 @@ type User struct {
 
 type Space struct {
 	gorm.Model
-	Name      string `json:"name" gorm:"type:text;not null"`
-	CreatedBy uint   `json:"created_by" gorm:"not null"`
-	Members   []User `gorm:"many2many:user_spaces;"`
-	Map       string `json:"map" gorm:"default:officecozy"`
+	Name            string          `json:"name" gorm:"type:text;not null"`
+	CreatedBy       uint            `json:"created_by" gorm:"not null"`
+	Members         []User          `gorm:"many2many:user_spaces;"`
+	Map             string          `json:"map" gorm:"default:officecozy"`
+	SpaceWhiteboard SpaceWhiteboard `json:"whiteboard" gorm:"foreignKey:SpaceID"`
+}
+
+type SpaceWhiteboard struct {
+	gorm.Model
+	SpaceID  uint            `json:"space_id" gorm:"uniqueIndex;not null"`
+	Elements json.RawMessage `json:"elements" gorm:"type:jsonb;default:'[]'::jsonb"`
+	AppState json.RawMessage `json:"app_state" gorm:"type:jsonb;default:'{}'::jsonb"`
 }

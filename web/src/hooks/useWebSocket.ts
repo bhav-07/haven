@@ -7,6 +7,7 @@ export interface Player {
     id: string;
     name: string;
     position: { x: number, y: number };
+    nickname: string;
 }
 
 const useWebSocket = (spaceId: string) => {
@@ -33,7 +34,8 @@ const useWebSocket = (spaceId: string) => {
                             x: message.content.position.x,
                             y: message.content.position.y
                         },
-                        name: message.content.player_name
+                        name: message.content.player_name,
+                        nickname: message.content.player_nickname
                     };
 
                     playersRef.current = {
@@ -78,6 +80,7 @@ const useWebSocket = (spaceId: string) => {
                             id: player.id,
                             name: player.name,
                             position: player.position,
+                            nickname: player.nickname,
                         };
                     });
                     playersRef.current = existingPlayers;

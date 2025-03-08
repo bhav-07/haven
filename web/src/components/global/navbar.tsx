@@ -13,8 +13,8 @@ const Navbar = () => {
   ];
 
   return (
-    <div className="fixed inset-x-0 top-0 flex justify-center p-2 pointer-events-none z-50">
-      <nav className="pointer-events-auto border-slate-300 border-opacity-40 border-2 rounded-full backdrop-blur-md max-w-7xl w-full h-14 flex flex-row justify-center items-center">
+    <div className="fixed inset-x-0 top-1 flex justify-center p-2 pointer-events-none z-50">
+      <nav className="pointer-events-auto bg-neutral-600 rounded-full backdrop-blur-md max-w-7xl w-full h-14 flex flex-row justify-center items-center">
         <div className="flex flex-row justify-between w-full px-6">
           {/* Logo and Brand */}
           <a
@@ -31,7 +31,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-lg  hover:text-slate-300 transition-colors"
+                className="text-lg hover:text-neutral-400 transition-colors"
               >
                 {link.label}
               </a>

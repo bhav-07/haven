@@ -18,7 +18,6 @@ const UserSpaces = ({
     const fetchSpaces = async () => {
       try {
         const response = await getUserSpaces();
-        console.log(response.data);
         setSpaces(response.data); // Assuming response.data contains the spaces
       } catch (error) {
         console.error(apiError || "Error fetching spaces:", error);
@@ -29,7 +28,7 @@ const UserSpaces = ({
   }, [refresh]);
 
   return (
-    <section className="max-w-7xl w-screen grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 md:my-8 my-4 px-3 md:gap-6 gap-4">
+    <section className="max-w-7xl w-screen grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 md:my-8 my-4 px-3 md:gap-6 gap-4">
       {isLoading ? (
         <Loading mode="dark" className="mt-12" />
       ) : spaces.length > 0 ? (

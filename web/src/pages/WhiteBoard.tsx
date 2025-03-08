@@ -1,145 +1,39 @@
-// import { useState, useEffect, useRef } from "react";
-// import { Excalidraw } from "@excalidraw/excalidraw";
-// import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
-// import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
-
-// const WS_URL = "ws://localhost:8080/whiteboard/ws/123";
-
-// function App() {
-//   const elements = useRef<ExcalidrawElement[]>([]);
-//   const lastSyncTimestamp = useRef<number>(0);
-//   const ws = useRef<WebSocket | null>(null);
-//   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-//   const [excalidrawAPI, setExcalidrawAPI] =
-//     useState<ExcalidrawImperativeAPI | null>(null);
-
-//   useEffect(() => {
-//     ws.current = new WebSocket(WS_URL);
-
-//     ws.current.onmessage = (event) => {
-//       try {
-//         const receivedData = JSON.parse(event.data);
-//         if (receivedData.elements) {
-//           const validElements = filterElements(
-//             receivedData.elements.map((el: ExcalidrawElement) => ({
-//               ...el,
-//               id: el.id || crypto.randomUUID(),
-//             }))
-//           );
-
-//           elements.current = reconcileElements(
-//             elements.current,
-//             validElements,
-//             lastSyncTimestamp.current
-//           );
-//           excalidrawAPI?.updateScene({ elements: elements.current });
-//         }
-//       } catch (error) {
-//         console.error("Error handling message:", error);
-//       }
-//     };
-
-//     return () => ws.current?.close();
-//   }, [excalidrawAPI]);
-
-//   const filterElements = (elements: readonly ExcalidrawElement[]) => {
-//     return elements.filter((el) => !el.isDeleted && el.type !== "selection");
-//   };
-
-//   const handleChange = (newElements: readonly ExcalidrawElement[]) => {
-//     const validElements = filterElements(newElements);
-//     elements.current = [...validElements];
-
-//     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-
-//     debounceTimeout.current = setTimeout(() => {
-//       if (ws.current?.readyState === WebSocket.OPEN) {
-//         lastSyncTimestamp.current = Date.now();
-//         ws.current.send(
-//           JSON.stringify({
-//             elements: validElements,
-//             timestamp: lastSyncTimestamp.current,
-//           })
-//         );
-//       }
-//     }, 100);
-//   };
-
-//   return (
-//     <div style={{ height: "100vh" }}>
-//       {/* <h1 style={{ textAlign: "center" }}>Collaborative Whiteboard</h1> */}
-//       <div style={{ height: "calc(100vh)" }}>
-//         <Excalidraw
-//           isCollaborating={true}
-//           excalidrawAPI={(api) => setExcalidrawAPI(api)}
-//           onChange={handleChange}
-//           theme="dark"
-//         />
-//       </div>
-//     </div>
-//   );
-// }
-
-// function reconcileElements(
-//   local: ExcalidrawElement[],
-//   remote: ExcalidrawElement[],
-//   lastSync: number
-// ): ExcalidrawElement[] {
-//   const remoteMap = new Map(remote.map((el) => [el.id, el]));
-//   const localMap = new Map(local.map((el) => [el.id, el]));
-
-//   const merged: ExcalidrawElement[] = [];
-
-//   // Merge remote elements with conflict resolution
-//   remote.forEach((remoteEl) => {
-//     const localEl = localMap.get(remoteEl.id);
-//     merged.push(
-//       localEl && localEl.updated > remoteEl.updated ? localEl : remoteEl
-//     );
-//   });
-
-//   // Add local elements not in remote that were modified after last sync
-//   local.forEach((localEl) => {
-//     if (!remoteMap.has(localEl.id) && localEl.updated > lastSync) {
-//       merged.push(localEl);
-//     }
-//   });
-
-//   return merged;
-// }
-
-// export default App;
-
-// File: src/components/CollaborativeBoard.jsx
 import { useEffect, useState, useRef } from "react";
-import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
+import {
+  Excalidraw,
+  exportToBlob,
+  Footer,
+  Sidebar,
+} from "@excalidraw/excalidraw";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
+import { useAuth } from "../auth/authContext";
 
-const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
+const ExcalidrawBoard = ({ spaceId }: { spaceId: string }) => {
   const [excalidrawAPI, setExcalidrawAPI] =
     useState<ExcalidrawImperativeAPI | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [username, setUsername] = useState(
-    `user-${Math.floor(Math.random() * 1000)}`
-  );
+
+  const { user } = useAuth();
+
+  const username = user?.nickname;
+  console.log(username);
+
   const [isConnected, setIsConnected] = useState(false);
   const [participants, setParticipants] = useState([]);
   const lastSentElements = useRef([]);
   const updateLock = useRef(false);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [docked, setDocked] = useState(false);
 
-  // Connect to WebSocket server
   useEffect(() => {
-    if (!spaceId || !username) return;
+    if (!spaceId) return;
 
-    // Close previous connection if exists
     if (socket) {
       socket.close();
     }
 
-    // Use secure WebSocket in production
-    const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsProtocol = "ws:";
     const wsUrl = `${wsProtocol}//${window.location.hostname}:8080/whiteboard/ws/${spaceId}?username=${username}`;
     const ws = new WebSocket(wsUrl);
 
@@ -153,17 +47,15 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-
+        console.log(data);
         if (
           data.type === "scene-update" &&
           excalidrawAPI &&
           !updateLock.current
         ) {
-          // Set lock to prevent update loops
           updateLock.current = true;
 
           try {
-            // Parse the elements if they're a string
             const elements =
               typeof data.elements === "string"
                 ? JSON.parse(data.elements)
@@ -173,7 +65,6 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
           } catch (err) {
             console.error("Error updating scene:", err);
           } finally {
-            // Release lock after a short delay to prevent immediate re-triggering
             setTimeout(() => {
               updateLock.current = false;
             }, 50);
@@ -206,12 +97,10 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
   useEffect(() => {
     if (!excalidrawAPI) return;
 
-    // Subscribe to pointer down event (start drawing)
     const unsubscribePointerDown = excalidrawAPI.onPointerDown(() => {
       setIsDrawing(true);
     });
 
-    // Subscribe to pointer up event (stop drawing)
     const unsubscribePointerUp = excalidrawAPI.onPointerUp(() => {
       setIsDrawing(false);
     });
@@ -222,7 +111,6 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
     };
   }, [excalidrawAPI]);
 
-  // Handle changes to the Excalidraw scene
   const handleChange = (elements: readonly ExcalidrawElement[]) => {
     if (
       !socket ||
@@ -233,14 +121,12 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
     )
       return;
 
-    // Stringify and parse to ensure we're comparing similar objects
     const currentElements = JSON.stringify(elements);
     const lastElements = JSON.stringify(lastSentElements.current);
 
     if (currentElements !== lastElements) {
       lastSentElements.current = JSON.parse(currentElements);
 
-      // Send scene update to server
       socket.send(
         JSON.stringify({
           type: "scene-update",
@@ -257,12 +143,11 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
       const blob = await exportToBlob({
         elements: excalidrawAPI.getSceneElements(),
         appState: excalidrawAPI.getAppState(),
-        files: excalidrawAPI.getFiles(), // Add files property
+        files: excalidrawAPI.getFiles(),
         mimeType: "image/png",
         quality: 1,
       });
 
-      // Create download link
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -275,21 +160,9 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-gray-100">
-      {/* Header */}
-      <div className="flex justify-between items-center p-4 bg-white shadow-md">
-        {/* Username Input & Connection Status */}
+    <div className="flex flex-col h-full w-full bg-gray-100 rounded-2xl">
+      <div className="flex justify-start gap-2 items-center p-4 bg-white shadow-md">
         <div className="flex items-center gap-4">
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Your Name"
-            onBlur={() => {
-              if (socket) socket.close();
-            }}
-            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
           <div
             className={`text-sm font-semibold px-3 py-1 rounded-lg ${
               isConnected ? "bg-green-500 text-white" : "bg-red-500 text-white"
@@ -298,8 +171,6 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
             {isConnected ? "Connected" : "Disconnected"}
           </div>
         </div>
-
-        {/* Participants & Export Button */}
         <div className="flex items-center gap-4">
           <div className="text-gray-700 font-medium">
             {participants.length} participant
@@ -315,16 +186,65 @@ const ExcalidrawBoard = ({ spaceId = "default-space" }) => {
         </div>
       </div>
 
-      {/* Excalidraw Canvas */}
-      <div className="h-full flex-grow w-screen p-2">
+      <div className="h-full flex-grow w-full p-0">
         <Excalidraw
           excalidrawAPI={(api) => setExcalidrawAPI(api)}
           onChange={handleChange}
           viewModeEnabled={false}
           zenModeEnabled={false}
           gridModeEnabled={false}
-          // className="shadow-lg rounded-lg bg-white"
-        />
+          theme="dark"
+          UIOptions={{
+            dockedSidebarBreakpoint: 0,
+          }}
+        >
+          <Sidebar name="custom" docked={docked} onDock={setDocked}>
+            <Sidebar.Header />
+            <Sidebar.Tabs>
+              <Sidebar.Tab tab="participants">
+                <div className="items-center flex flex-col">
+                  <span className="text-center text-xl py-3 w-full">
+                    <h1>Participants</h1>
+                  </span>
+                  {participants.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No participants yet</p>
+                    </div>
+                  ) : (
+                    <ul>
+                      {participants.map((participant, index) => (
+                        <li key={index} className="text-lg font-semibold">
+                          {participant}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </Sidebar.Tab>
+              <Sidebar.Tab tab="chat">Chat goes here</Sidebar.Tab>
+              <Sidebar.TabTriggers>
+                <Sidebar.TabTrigger tab="participants">
+                  Participants
+                </Sidebar.TabTrigger>
+                <Sidebar.TabTrigger tab="chat">Chat</Sidebar.TabTrigger>
+              </Sidebar.TabTriggers>
+            </Sidebar.Tabs>
+          </Sidebar>
+          <Footer>
+            <Sidebar.Trigger
+              name="custom"
+              tab="participants"
+              className="font-bold"
+              style={{
+                marginLeft: "0.5rem",
+                background: "#3b82f6",
+                color: "white",
+              }}
+            >
+              Toggle Sidebar
+            </Sidebar.Trigger>
+          </Footer>
+        </Excalidraw>
       </div>
     </div>
   );
