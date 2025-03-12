@@ -39,6 +39,12 @@ Work together on ideas with our realtime collaborative whiteboard.
   <img src="https://github.com/user-attachments/assets/e675f64d-cf02-4161-aaf4-42e3ba5d0860" width="80%" alt="Collaborative Whiteboard">
 </div>
 
+### 🖥️ Kanban Board
+Track your projects progress the modern way.
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/6fb26ed1-c967-4acc-a7ff-c2984e557c53" width="100%" alt="Kanban Board">
+</div>
+
 ### 🖥️ Personal Desk
 Have your own customizable desk in the virtual workspace.
 
