@@ -16,6 +16,7 @@ class MainScene extends Phaser.Scene {
     // space!: Space;
     // spaceName!: Phaser.GameObjects.Text;
     onShowWhiteboardModal!: () => void;
+    onShowKanbanModal!: () => void;
 
     lastDirection: "left" | "right" | "up" | "down" = "down";
 
@@ -33,12 +34,14 @@ class MainScene extends Phaser.Scene {
         localUserId: string;
         space: Space;
         onShowWhiteboardModal: () => void;
+        onShowKanbanModal: () => void;
     }) {
         this.ws = data.ws;
         this.playersRef = data.playersRef;
         this.localUserId = data.localUserId;
         // this.space = data.space;
         this.onShowWhiteboardModal = data.onShowWhiteboardModal;
+        this.onShowKanbanModal = data.onShowKanbanModal;
     }
 
     preload() {
@@ -78,6 +81,12 @@ class MainScene extends Phaser.Scene {
 
             if (isInZone && this.onShowWhiteboardModal) {
                 this.onShowWhiteboardModal();
+            }
+        });
+
+        this.input.keyboard!.on('keydown-K', () => {
+            if (this.onShowKanbanModal) {
+                this.onShowKanbanModal();
             }
         });
 

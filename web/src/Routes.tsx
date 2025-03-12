@@ -8,6 +8,7 @@ import Unauthozied from "./pages/401";
 import Space from "./pages/Space";
 import NotFound from "./pages/404";
 import MyProfile from "./pages/MyProfile";
+import KanbanBoard from "./components/space/KanbanBoard/KanbanBoard";
 
 const Routes = () => {
   const routesForPublic = [
@@ -34,6 +35,10 @@ const Routes = () => {
     {
       path: "/not-found",
       element: <NotFound />,
+    },
+    {
+      path: "kan",
+      element: <KanbanBoard />,
     },
   ];
 

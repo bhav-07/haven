@@ -9,7 +9,13 @@ import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { useAuth } from "../auth/authContext";
 
-const ExcalidrawBoard = ({ spaceId }: { spaceId: string }) => {
+const ExcalidrawBoard = ({
+  spaceId,
+  onClose,
+}: {
+  spaceId: string;
+  onClose: () => void;
+}) => {
   const [excalidrawAPI, setExcalidrawAPI] =
     useState<ExcalidrawImperativeAPI | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -161,27 +167,33 @@ const ExcalidrawBoard = ({ spaceId }: { spaceId: string }) => {
 
   return (
     <div className="flex flex-col h-full w-full bg-gray-100 rounded-2xl">
-      <div className="flex justify-start gap-2 items-center p-4 bg-white shadow-md">
+      <div className="flex justify-between items-center p-4 bg-neutral-800 shadow-md">
         <div className="flex items-center gap-4">
           <div
             className={`text-sm font-semibold px-3 py-1 rounded-lg ${
-              isConnected ? "bg-green-500 text-white" : "bg-red-500 text-white"
+              isConnected ? "bg-green-700 text-white" : "bg-red-700 text-white"
             }`}
           >
             {isConnected ? "Connected" : "Disconnected"}
           </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-gray-700 font-medium">
+          <div className="text-white font-medium">
             {participants.length} participant
             {participants.length !== 1 ? "s" : ""}
           </div>
+        </div>
+        <div className="flex items-center gap-4">
           <button
             onClick={handleExport}
             disabled={!excalidrawAPI}
             className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg disabled:bg-gray-400 hover:bg-blue-600 transition"
           >
             Export PNG
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-neutral-200 text-neutral-700 text-lg px-3 py-2 rounded-lg"
+          >
+            Close
           </button>
         </div>
       </div>
@@ -198,12 +210,12 @@ const ExcalidrawBoard = ({ spaceId }: { spaceId: string }) => {
             dockedSidebarBreakpoint: 0,
           }}
         >
-          <Sidebar name="custom" docked={docked} onDock={setDocked}>
+          <Sidebar name="Sidebar" docked={docked} onDock={setDocked}>
             <Sidebar.Header />
             <Sidebar.Tabs>
               <Sidebar.Tab tab="participants">
                 <div className="items-center flex flex-col">
-                  <span className="text-center text-xl py-3 w-full">
+                  <span className="text-center font-mono text-xl py-2 w-full">
                     <h1>Participants</h1>
                   </span>
                   {participants.length === 0 ? (
@@ -232,7 +244,7 @@ const ExcalidrawBoard = ({ spaceId }: { spaceId: string }) => {
           </Sidebar>
           <Footer>
             <Sidebar.Trigger
-              name="custom"
+              name="Sidebar"
               tab="participants"
               className="font-bold"
               style={{
@@ -241,7 +253,7 @@ const ExcalidrawBoard = ({ spaceId }: { spaceId: string }) => {
                 color: "white",
               }}
             >
-              Toggle Sidebar
+              Sidebar
             </Sidebar.Trigger>
           </Footer>
         </Excalidraw>

@@ -146,7 +146,7 @@ func (ws *WhiteboardServer) saveRoomState(roomID string) {
 	room.saveScheduled = false
 	room.Mutex.Unlock()
 
-	log.Printf("Saving whiteboard state for space %d", spaceID)
+	// log.Printf("Saving whiteboard state for space %d", spaceID)
 	if err := ws.saveWhiteboardState(spaceID, elements, appState); err != nil {
 		log.Printf("Error saving whiteboard state for space %d: %v", spaceID, err)
 	}
