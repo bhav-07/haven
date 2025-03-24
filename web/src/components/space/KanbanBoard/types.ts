@@ -1,13 +1,16 @@
-export type Column = {
+export type ColumnType = {
     id: string;
     title: string;
 };
 
-export type Task = {
+export type TaskType = {
     id: string;
-    status: TaskStatus;
+    status: TaskStatusType;
     title: string;
     description: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    createdAt: string;
+    dueDate: string;
 };
 
-export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
+export type TaskStatusType = "TODO" | "IN_PROGRESS" | "DONE" | "IN_REVIEW";

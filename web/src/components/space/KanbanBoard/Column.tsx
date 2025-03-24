@@ -1,10 +1,10 @@
 import { useDroppable } from "@dnd-kit/core";
 import { TaskCard } from "./TaskCard";
-import { Column as ColumnType, Task } from "./types";
+import { ColumnType, TaskType } from "./types";
 
 type ColumnProps = {
   column: ColumnType;
-  tasks: Task[];
+  tasks: TaskType[];
 };
 
 export function Column({ column, tasks }: ColumnProps) {
@@ -12,8 +12,23 @@ export function Column({ column, tasks }: ColumnProps) {
     id: column.id,
   });
 
+  const getBorderColor = () => {
+    switch (column.id) {
+      case "TODO":
+        return "border-[#fde47d]";
+      case "IN_PROGRESS":
+        return "border-[#93d4f0]";
+      case "IN_REVIEW":
+        return "border-[#fac6b0]";
+      case "DONE":
+        return "border-[#98FB98]";
+    }
+  };
+
   return (
-    <div className="flex w-full flex-col rounded-lg bg-neutral-300 p-4">
+    <div
+      className={`flex w-full flex-col h-fit md:min-h-full bg-neutral-300/90 rounded-lg p-4 border-t-[12px] ${getBorderColor()} `}
+    >
       <h2 className="mb-4 font-semibold text-neutral-800">{column.title}</h2>
       <div ref={setNodeRef} className="flex flex-1 flex-col gap-4">
         {tasks.map((task) => {
