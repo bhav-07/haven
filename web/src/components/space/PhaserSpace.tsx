@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
 import MainScene from "./MainScene";
@@ -18,16 +17,16 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
 
   const { user } = useAuth();
 
-  const handleShowWhiteboardModal = () => {
-    setIsWhiteboardOpen(true);
+  const toggleWhiteboard = () => {
+    if (!isKanbanOpen) {
+      setIsWhiteboardOpen((prev) => !prev);
+    }
   };
 
-  const handleShowKanbanModal = () => {
-    setIsKanbanOpen(true);
-  };
-
-  const handleCloseWhiteboardModal = () => {
-    setIsWhiteboardOpen(false);
+  const toggleKanban = () => {
+    if (!isWhiteboardOpen) {
+      setIsKanbanOpen((prev) => !prev);
+    }
   };
 
   useEffect(() => {
@@ -50,8 +49,8 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       ws,
       playersRef,
       localUserId,
-      onShowWhiteboardModal: handleShowWhiteboardModal,
-      onShowKanbanModal: handleShowKanbanModal,
+      onToggleWhiteboardModal: toggleWhiteboard,
+      onToggleKanbanModal: toggleKanban,
     });
 
     setLoading(false);
@@ -63,7 +62,7 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   }, [ws]);
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-screen h-screen flex items-center justify-center">
       <Toaster />
 
       {isWhiteboardOpen && (
@@ -73,7 +72,7 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
               <ExcalidrawBoard
                 spaceId={spaceId}
                 key={spaceId}
-                onClose={handleCloseWhiteboardModal}
+                onClose={() => setIsWhiteboardOpen(false)}
               />
             )}
           </div>
@@ -82,7 +81,7 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
 
       {isKanbanOpen && (
         <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-20">
-          <div className="relative w-[95%] h-[95%] bg-white text-neutral-800 rounded-lg shadow-lg">
+          <div className="relative w-[95%] h-[95%] rounded-lg bg-white text-neutral-800 shadow-lg">
             {user && <KanbanBoard onClose={() => setIsKanbanOpen(false)} />}
           </div>
         </div>

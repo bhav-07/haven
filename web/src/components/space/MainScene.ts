@@ -15,8 +15,8 @@ class MainScene extends Phaser.Scene {
     whiteboardInteractZone!: Phaser.Geom.Rectangle;
     // space!: Space;
     // spaceName!: Phaser.GameObjects.Text;
-    onShowWhiteboardModal!: () => void;
-    onShowKanbanModal!: () => void;
+    onToggleWhiteboardModal!: () => void;
+    onToggleKanbanModal!: () => void;
 
     lastDirection: "left" | "right" | "up" | "down" = "down";
 
@@ -33,15 +33,15 @@ class MainScene extends Phaser.Scene {
         playersRef: React.MutableRefObject<Record<string, Player>>;
         localUserId: string;
         space: Space;
-        onShowWhiteboardModal: () => void;
-        onShowKanbanModal: () => void;
+        onToggleWhiteboardModal: () => void;
+        onToggleKanbanModal: () => void;
     }) {
         this.ws = data.ws;
         this.playersRef = data.playersRef;
         this.localUserId = data.localUserId;
         // this.space = data.space;
-        this.onShowWhiteboardModal = data.onShowWhiteboardModal;
-        this.onShowKanbanModal = data.onShowKanbanModal;
+        this.onToggleWhiteboardModal = data.onToggleWhiteboardModal;
+        this.onToggleKanbanModal = data.onToggleKanbanModal;
     }
 
     preload() {
@@ -60,33 +60,20 @@ class MainScene extends Phaser.Scene {
 
         this.add.image(0, 0, "map").setOrigin(0, 0);
 
-        // const spaceName = this.add.text(
-        //     700, 1040,
-        //     this.space.name.toUpperCase(),
-        //     {
-        //         fontSize: "22px",
-        //         color: "#ffffff",
-        //         backgroundColor: "#00000080",
-        //         padding: { x: 4, y: 2 }
-        //     }
-        // ).setOrigin(0.5).setVisible(true);
-
-        // this.spaceName = spaceName
-
         this.whiteboardInteractZone = new Phaser.Geom.Rectangle(820, 640, 300, 300);
 
         this.input.keyboard!.on('keydown-E', () => {
             const playerPoint = new Phaser.Geom.Point(this.player.x, this.player.y);
             const isInZone = Phaser.Geom.Rectangle.ContainsPoint(this.whiteboardInteractZone, playerPoint);
 
-            if (isInZone && this.onShowWhiteboardModal) {
-                this.onShowWhiteboardModal();
+            if (isInZone && this.onToggleWhiteboardModal) {
+                this.onToggleWhiteboardModal();
             }
         });
 
         this.input.keyboard!.on('keydown-K', () => {
-            if (this.onShowKanbanModal) {
-                this.onShowKanbanModal();
+            if (this.onToggleKanbanModal) {
+                this.onToggleKanbanModal();
             }
         });
 

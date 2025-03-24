@@ -77,7 +77,7 @@ const SpaceModal = (currSpace: Space) => {
               Created: {formattedDate}
             </span>
             <span className="font-bold text-lg">Members</span>
-            <div className="max-h-[250px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-400 scrollbar-track-neutral-300">
+            <div className="max-h-[250px] overflow-y-auto pr-2 scrollbar-thin">
               {currSpace.Members.map((member, index) => (
                 <p
                   className="text-sm sm:text-base text-neutral-600 flex items-center gap-1"
