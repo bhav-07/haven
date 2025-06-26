@@ -54,7 +54,7 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-        this.cameras.main.setZoom(1.5);
+        this.cameras.main.setZoom(1.25);
 
         this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 

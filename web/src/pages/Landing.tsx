@@ -1,15 +1,18 @@
 import { useNavigate } from "react-router";
 import Logo from "../components/logo/logo-shape";
 import Navbar from "../components/global/navbar";
+import { FeatureCard } from "../components/landing/feature-card";
+import { features } from "../components/landing/features";
 
 const Landing = () => {
   const navigate = useNavigate();
   return (
-    <div className="items-center justify-center text-center flex flex-col max-w-screen">
+    <div className="items-center justify-center text-center flex flex-col max-w-screen overflow-y-clip">
       <Navbar />
-      <section className="flex flex-col items-center justify-center h-svh gap-6 animate-fade-in">
-        <h1 className="md:text-[140px] text-5xl md:gap-4 gap-2 font-serif flex flex-row items-center">
-          <Logo variant="gradient2" className="md:size-[98px] size-9" />{" "}
+      <section className="flex flex-col items-center justify-center h-svh gap-6 animate-fade-in select-none">
+        <h1 className="md:text-[200px] text-5xl md:gap-4 space-x-4 font-serif flex flex-row items-center">
+          <Logo variant="gradient2" className="md:size-[140px] size-9" />
+          <div className=" h-full md:w-2 sm:w-1 w-[2px] bg-gradient-to-br from-[#fdfcfb] to-[#eec09b]"></div>
           <span className="bg-gradient-to-br from-[#fdfcfb] to-[#eec09b] text-transparent bg-clip-text">
             Haven
           </span>
@@ -27,6 +30,19 @@ const Landing = () => {
           </span>
         </button>
       </section>
+      <div className="space-y-6">
+        {features.map((item) => (
+          <FeatureCard
+            features={item.features}
+            heading={item.heading}
+            key={item.id}
+            imageSrc={item.imageSrc}
+          />
+        ))}
+      </div>
+      <footer className="text-[250px] antialiased text-opacity-10 leading-none relative top-[45px] select-none tracking-widest font-semibold text-white">
+        Haven
+      </footer>
     </div>
   );
 };

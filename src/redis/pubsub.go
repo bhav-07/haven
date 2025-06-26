@@ -123,10 +123,7 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 	if gs.spaces[spaceIdstring] == nil {
 		gs.spaces[spaceIdstring] = make(map[string]*Player)
 	}
-	gs.spaces[spaceIdstring][userIdStr] = player
-	gs.mu.Unlock()
 
-	gs.mu.Lock()
 	var currentPlayersInSpace []Player
 	for userId, players := range gs.spaces[spaceIdstring] {
 		if userId != userIdStr {
@@ -134,6 +131,7 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 			currentPlayersInSpace = append(currentPlayersInSpace, *players)
 		}
 	}
+	gs.spaces[spaceIdstring][userIdStr] = player
 	gs.mu.Unlock()
 
 	joinMessage := map[string]interface{}{
