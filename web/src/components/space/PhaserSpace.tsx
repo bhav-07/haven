@@ -11,7 +11,7 @@ import KanbanBoard from "./KanbanBoard/KanbanBoard";
 const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   const spaceRef = useRef<Phaser.Game | null>(null);
   const [loading, setLoading] = useState(true);
-  const { playersRef, ws, localUserId } = useWebSocket(spaceId);
+  const { playersRef, ws, localUserId, isConnected } = useWebSocket(spaceId);
   const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
   const [isKanbanOpen, setIsKanbanOpen] = useState(false);
 
@@ -55,11 +55,12 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
 
     setLoading(false);
     return () => {
-      ws?.close();
+      // ws?.close();
       spaceRef.current?.destroy(true);
       spaceRef.current = null;
+      setLoading(true);
     };
-  }, [ws]);
+  }, [ws, isConnected]);
 
   return (
     <div className="w-screen h-screen flex items-center justify-center">
@@ -82,7 +83,12 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       {isKanbanOpen && (
         <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-20">
           <div className="relative w-[95%] h-[95%] rounded-lg bg-white text-neutral-800 shadow-lg">
-            {user && <KanbanBoard onClose={() => setIsKanbanOpen(false)} />}
+            {user && (
+              <KanbanBoard
+                onClose={() => setIsKanbanOpen(false)}
+                spaceId={spaceId}
+              />
+            )}
           </div>
         </div>
       )}

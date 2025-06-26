@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/authContext";
 
@@ -16,11 +16,20 @@ const useWebSocket = (spaceId: string) => {
     const wsRef = useRef<WebSocket | null>(null);
     const playersRef = useRef<Record<string, Player>>({});
     const { user } = useAuth();
+    const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
         wsRef.current = new WebSocket(`${wsURL}/space/ws/${spaceId}`);
 
-        wsRef.current.onopen = () => console.log("Connected to game server");
+        wsRef.current.onopen = () => {
+            console.log("Connected to game server");
+            setIsConnected(true);
+        };
+
+        wsRef.current.onclose = () => {
+            console.log("Disconnected from game server");
+            setIsConnected(false);
+        };
 
         wsRef.current.onmessage = (ev: MessageEvent) => {
             const message = JSON.parse(ev.data);
@@ -90,16 +99,27 @@ const useWebSocket = (spaceId: string) => {
                     console.warn("Unknown message type:", message);
             }
         };
+        const handleBeforeUnload = () => {
+            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                wsRef.current.close(1000, "Page unloading");
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
 
         return () => {
-            wsRef.current?.close();
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            if (wsRef.current) {
+                wsRef.current.close(1000, "Component unmounting");
+            }
         };
-    }, [spaceId]);
+    }, [spaceId, wsURL]);
 
     return {
         ws: wsRef.current,
         playersRef,
         localUserId: user?.id.toString(10),
+        isConnected,
     };
 };
 

@@ -26,7 +26,7 @@ type RoomParticipants struct {
 	Participants []string `json:"participants"`
 }
 
-type Space struct {
+type WhiteboardSpace struct {
 	SpaceID       uint
 	Clients       map[*websocket.Conn]string
 	State         WhiteboardState
@@ -39,7 +39,7 @@ type Space struct {
 type WhiteboardServer struct {
 	redisClient  *redis.Client
 	ctx          context.Context
-	rooms        map[string]*Space
+	rooms        map[string]*WhiteboardSpace
 	mu           sync.RWMutex
 	db           *gorm.DB
 	debounceTime time.Duration
@@ -57,7 +57,7 @@ func NewWhiteboardServer(db *gorm.DB) *WhiteboardServer {
 		whiteboardServer = &WhiteboardServer{
 			redisClient:  RedisClient,
 			ctx:          ctx,
-			rooms:        make(map[string]*Space),
+			rooms:        make(map[string]*WhiteboardSpace),
 			mu:           sync.RWMutex{},
 			db:           db,
 			debounceTime: 3 * time.Second,
@@ -243,7 +243,7 @@ func (ws *WhiteboardServer) HandleWebSocket(c *websocket.Conn) {
 			}
 		}
 
-		ws.rooms[roomID] = &Space{
+		ws.rooms[roomID] = &WhiteboardSpace{
 			Clients: make(map[*websocket.Conn]string),
 			State: WhiteboardState{
 				Type:     "scene-update",

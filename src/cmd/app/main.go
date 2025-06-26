@@ -6,6 +6,7 @@ import (
 	"github.com/bhav-07/haven/config"
 	"github.com/bhav-07/haven/db"
 	"github.com/bhav-07/haven/handlers/auth"
+	"github.com/bhav-07/haven/handlers/kanban"
 	"github.com/bhav-07/haven/handlers/space"
 	"github.com/bhav-07/haven/handlers/user"
 	"github.com/bhav-07/haven/handlers/whiteboard"
@@ -27,7 +28,7 @@ func init() {
 		panic(err)
 	}
 
-	err = db.DB.AutoMigrate(&models.User{}, &models.Space{}, &models.SpaceWhiteboard{})
+	err = db.DB.AutoMigrate(&models.User{}, &models.Space{}, &models.SpaceWhiteboard{}, &models.KanbanTasks{})
 	if err != nil {
 		log.Error("Error migrating database", "error", err.Error())
 		panic(fmt.Sprintf("Error migrating database: %v", err))
@@ -55,6 +56,8 @@ func main() {
 	protected := app.Use(middleware.AuthMiddleware(db.DB))
 
 	space.SpaceHandlers(protected, db.DB)
+
+	kanban.KanbanHandlers(protected.Group("/kanban"), db.DB)
 
 	whiteboard.WhiteboardHandlers(protected, db.DB)
 

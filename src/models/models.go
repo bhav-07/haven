@@ -30,3 +30,13 @@ type SpaceWhiteboard struct {
 	Elements json.RawMessage `json:"elements" gorm:"type:jsonb;default:'[]'::jsonb"`
 	AppState json.RawMessage `json:"app_state" gorm:"type:jsonb;default:'{}'::jsonb"`
 }
+
+type KanbanTasks struct {
+	gorm.Model
+	SpaceID     uint   `json:"space_id" gorm:"not null"`
+	Title       string `json:"title" gorm:"type:text;not null"`
+	Description string `json:"description" gorm:"type:text"`
+	Status      string `json:"status" gorm:"type:text;not null;default:'TODO'"`
+	Priority    string `json:"priority" gorm:"type:text;not null;default:'MEDIUM'"`
+	DueDate     string `json:"due_date" gorm:"type:text;not null"`
+}

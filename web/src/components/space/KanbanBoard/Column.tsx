@@ -5,6 +5,7 @@ import { ColumnType, TaskType } from "./types";
 type ColumnProps = {
   column: ColumnType;
   tasks: TaskType[];
+  spaceId: string;
 };
 
 export function Column({ column, tasks }: ColumnProps) {
