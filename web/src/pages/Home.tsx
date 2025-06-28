@@ -18,7 +18,7 @@ const Home = () => {
       <Navbar />
       <section className="max-w-7xl w-full flex md:flex-row flex-col md:items-center items-start gap-2 justify-between md:pt-24 pt-20 px-3">
         <h1 className="md:text-4xl text-xl">
-          Hello {user?.name.split(" ")[0]} 👋
+          Hello {user?.nickname.split(" ")[0]} 👋
         </h1>
         <div className="gap-2 flex md:w-auto">
           <UserStatus />

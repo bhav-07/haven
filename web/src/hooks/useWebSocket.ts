@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/authContext";
-import { UserStatusType } from "../types";
+import { ChatHistoryType, UserStatusType } from "../types";
 
 export interface Player {
     id: string;
@@ -19,6 +19,19 @@ const useWebSocket = (spaceId: string) => {
     const playersRef = useRef<Record<string, Player>>({});
     const { user } = useAuth();
     const [isConnected, setIsConnected] = useState(false);
+    const [chatHistory, setChatHistory] = useState<ChatHistoryType[]>([]);
+
+    const sendChatMessage = (content: string) => {
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            const message = {
+                type: "chat_message",
+                content: content
+            };
+            wsRef.current.send(JSON.stringify(message));
+        } else {
+            console.error("WebSocket is not open. Cannot send message.");
+        }
+    };
 
     useEffect(() => {
         wsRef.current = new WebSocket(`${wsURL}/space/ws/${spaceId}`);
@@ -87,7 +100,6 @@ const useWebSocket = (spaceId: string) => {
 
                 case "existing_players": {
                     const existingPlayers: Record<string, Player> = {};
-                    console.log(message.content)
                     message?.content?.forEach?.((player: any) => {
                         existingPlayers[player.id] = {
                             id: player.id,
@@ -98,9 +110,6 @@ const useWebSocket = (spaceId: string) => {
                         };
                     });
                     playersRef.current = existingPlayers;
-
-                    console.log(existingPlayers);
-
                     break;
                 }
 
@@ -116,8 +125,21 @@ const useWebSocket = (spaceId: string) => {
                             },
                         };
                     }
+                    break;
+                }
 
-                    console.log(playersRef.current);
+                case "chat_message": {
+                    const chatMessage: ChatHistoryType = {
+                        author: message.content.author,
+                        content: message.content.content,
+                        time: message.content.time,
+                    };
+                    setChatHistory(prev => [...prev, chatMessage]);
+                    break;
+                }
+
+                case "chat_history": {
+                    setChatHistory(message.content);
                     break;
                 }
                 default:
@@ -145,6 +167,8 @@ const useWebSocket = (spaceId: string) => {
         playersRef,
         localUserId: user?.id.toString(10),
         isConnected,
+        chatHistory,
+        sendChatMessage
     };
 };
 

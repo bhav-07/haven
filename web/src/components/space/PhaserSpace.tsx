@@ -8,11 +8,19 @@ import ExcalidrawBoard from "../../pages/WhiteBoard";
 import { useAuth } from "../../auth/authContext";
 import KanbanBoard from "./KanbanBoard/KanbanBoard";
 import UserStatus from "../global/user-status";
+import { ChatBox } from "./ChatBox";
 
 const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   const spaceRef = useRef<Phaser.Game | null>(null);
   const [loading, setLoading] = useState(true);
-  const { playersRef, ws, localUserId, isConnected } = useWebSocket(spaceId);
+  const {
+    playersRef,
+    ws,
+    localUserId,
+    isConnected,
+    chatHistory,
+    sendChatMessage,
+  } = useWebSocket(spaceId);
   const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
   const [isKanbanOpen, setIsKanbanOpen] = useState(false);
 
@@ -68,8 +76,13 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       <Toaster />
 
       {!loading && user && (
-        <div className="absolute top-4 right-4 z-50">
+        <div className="absolute top-5 right-5 z-50 flex flex-row items-center justify-center gap-3">
           <UserStatus />
+          <ChatBox
+            chatHistory={chatHistory}
+            onSendMessage={sendChatMessage}
+            isConnected={isConnected}
+          />
         </div>
       )}
 

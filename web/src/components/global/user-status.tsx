@@ -18,8 +18,6 @@ const UserStatus = () => {
         const response = await getUserStatus();
         const optionsResponse = await getUserStatusOptions();
 
-        console.log(optionsResponse.data);
-
         setUserStatusOptions(optionsResponse.data);
         setUserStatus(response.data.status);
       } catch (error) {

@@ -1,5 +1,6 @@
 import { Player } from "../../hooks/useWebSocket";
 import Space from "../../pages/Space";
+import { generateStatusIcons } from "../../services/iconGenerator";
 
 class MainScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
@@ -17,6 +18,7 @@ class MainScene extends Phaser.Scene {
     // spaceName!: Phaser.GameObjects.Text;
     onToggleWhiteboardModal!: () => void;
     onToggleKanbanModal!: () => void;
+    statusIconUrls: Record<string, string> = {};
 
     lastDirection: "left" | "right" | "up" | "down" = "down";
 
@@ -37,6 +39,10 @@ class MainScene extends Phaser.Scene {
         };
         return colors[status] ?? 0x9ca3af; // gray fallback
     }
+    getStatusIcon(status: string): string {
+        return `status-${status}`;
+    }
+
 
     init(data: {
         ws: WebSocket;
@@ -61,10 +67,15 @@ class MainScene extends Phaser.Scene {
             frameWidth: 18.75,
             frameHeight: 32,
         });
+
+        this.statusIconUrls = generateStatusIcons();
+        Object.entries(this.statusIconUrls).forEach(([status, dataUrl]) => {
+            this.load.image(`status-${status}`, dataUrl);
+        });
     }
 
     create() {
-        this.cameras.main.setZoom(1.25);
+        this.cameras.main.setZoom(1.5);
 
         this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
@@ -201,7 +212,7 @@ class MainScene extends Phaser.Scene {
                     0, 0,
                     playerData.nickname,
                     {
-                        fontSize: "14px",
+                        fontSize: "18px",
                         color: "#ffffff",
                         backgroundColor: "#00000080",
                         padding: { x: 4, y: 2 },
@@ -215,12 +226,11 @@ class MainScene extends Phaser.Scene {
                 const startX = playerData.position.x - totalWidth / 2;
                 const anchorY = playerData.position.y - 40;
 
-                const statusIndicator = this.add.circle(
+                const statusIndicator = this.add.image(
                     startX + 6,
                     anchorY,
-                    6,
-                    this.getStatusColor(playerData.status)
-                );
+                    this.getStatusIcon(playerData.status)
+                ).setTint(this.getStatusColor(playerData.status));
 
                 nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
 
@@ -232,7 +242,7 @@ class MainScene extends Phaser.Scene {
             } else {
                 const otherPlayer = this.otherPlayers.get(playerId)!;
                 const nameText = otherPlayer.getData('nameText') as Phaser.GameObjects.Text;
-                const statusIndicator = otherPlayer.getData("statusIndicator") as Phaser.GameObjects.Arc;
+                const statusIndicator = otherPlayer.getData("statusIndicator") as Phaser.GameObjects.Image;
 
                 const lastPosition = { x: otherPlayer.x, y: otherPlayer.y };
 
@@ -250,9 +260,16 @@ class MainScene extends Phaser.Scene {
                 }
 
 
-                const newColor = this.getStatusColor(playerData.status);
-                if (statusIndicator.fillColor !== newColor) {
-                    statusIndicator.setFillStyle(newColor);
+                const currentIconKey = this.getStatusIcon(playerData.status);
+                const currentColor = this.getStatusColor(playerData.status);
+
+                if (statusIndicator.texture.key !== currentIconKey) {
+                    statusIndicator.setTexture(currentIconKey);
+                }
+
+                // Update tint color
+                if (statusIndicator.tint !== currentColor) {
+                    statusIndicator.setTint(currentColor);
                 }
             }
         };

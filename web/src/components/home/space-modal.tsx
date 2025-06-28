@@ -54,11 +54,11 @@ const SpaceModal = (currSpace: Space) => {
         className="text-neutral-800 space-y-4 w-full max-w-2xl px-4 sm:px-6 bg-white"
       >
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-baseline gap-1">
-            <h1 className="text-neutral-500 text-sm sm:text-xl">
+          <div className="flex items-center gap-1 bg-neutral-200 rounded-full sm:px-4 px-2 sm:py-2 py-1 sm:gap-2">
+            <h1 className="text-neutral-500 text-lg sm:text-2xl">
               #{currSpace.ID}
             </h1>
-            <h1 className="text-lg sm:text-3xl text-neutral-700">
+            <h1 className="text-lg sm:text-2xl text-neutral-700">
               {currSpace.Name}
             </h1>
           </div>
@@ -150,7 +150,7 @@ const DeleteSpaceModal = ({
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        className="p-2 m-0"
+        className="p-2 m-0 bg-white"
       >
         <div className="text-neutral-800 space-y-4 p-2">
           <h2 className="text-xl font-semibold">Confirm Deletion</h2>
