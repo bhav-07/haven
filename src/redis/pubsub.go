@@ -26,6 +26,12 @@ type Position struct {
 	Y float64 `json:"y"`
 }
 
+type ChatMessage struct {
+	Time    time.Time `json:"time"`
+	Content string    `json:"content"`
+	Author  string    `json:"author"`
+}
+
 type Player struct {
 	ID       string            `json:"id"`
 	Name     string            `json:"name"`
@@ -41,6 +47,7 @@ type SpaceServer struct {
 	ctx         context.Context
 	spaces      map[string]map[string]*Player
 	mu          sync.RWMutex
+	spaceChats  map[string][]ChatMessage
 }
 
 func NewSpaceServer() (*SpaceServer, error) {
@@ -50,6 +57,7 @@ func NewSpaceServer() (*SpaceServer, error) {
 		redisClient: RedisClient,
 		ctx:         ctx,
 		spaces:      make(map[string]map[string]*Player),
+		spaceChats:  make(map[string][]ChatMessage),
 	}
 
 	go gs.subscribeToRedis()
@@ -58,7 +66,7 @@ func NewSpaceServer() (*SpaceServer, error) {
 }
 
 func (gs *SpaceServer) subscribeToRedis() {
-	pubsub := gs.redisClient.Subscribe(gs.ctx, "game:positions", "game:events", "user:status_updates")
+	pubsub := gs.redisClient.Subscribe(gs.ctx, "game:positions", "game:events", "user:status_updates", "game:chat")
 	defer pubsub.Close()
 
 	ch := pubsub.Channel()
@@ -72,6 +80,8 @@ func (gs *SpaceServer) subscribeToRedis() {
 		switch msg.Channel {
 		case "user:status_updates":
 			gs.handleStatusUpdate(message)
+		case "game:chat":
+			gs.handleChatMessage(message)
 		default:
 			gs.broadcastToSpacePlayers(message)
 		}
@@ -117,6 +127,50 @@ func (gs *SpaceServer) handleStatusUpdate(message Message) {
 				if err := p.Conn.WriteJSON(statusUpdateMessage); err != nil {
 					log.Error("Error sending status update to player %s: %v", p.ID, err)
 				}
+			}
+		}
+	}
+}
+
+func (gs *SpaceServer) handleChatMessage(message Message) {
+	content, ok := message.Content.(map[string]interface{})
+	if !ok {
+		return
+	}
+
+	spaceID, ok := content["space_id"].(string)
+	if !ok {
+		return
+	}
+
+	chatMsg := ChatMessage{
+		Time:    time.Now(),
+		Content: content["content"].(string),
+		Author:  content["author"].(string),
+	}
+
+	gs.mu.Lock()
+	defer gs.mu.Unlock()
+
+	if _, exists := gs.spaceChats[spaceID]; !exists {
+		gs.spaceChats[spaceID] = []ChatMessage{}
+	}
+
+	messages := append(gs.spaceChats[spaceID], chatMsg)
+	if len(messages) > 50 {
+		messages = messages[len(messages)-50:]
+	}
+	gs.spaceChats[spaceID] = messages
+
+	if players, exists := gs.spaces[spaceID]; exists {
+		chatMsg := Message{
+			Type:    "chat_message",
+			Content: chatMsg,
+			Time:    time.Now(),
+		}
+		for _, player := range players {
+			if err := player.Conn.WriteJSON(chatMsg); err != nil {
+				log.Error("Error sending chat to player %s: %v", player.ID, err)
 			}
 		}
 	}
@@ -205,6 +259,7 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn, db *gorm.DB) {
 	gs.mu.Lock()
 	if gs.spaces[spaceIdstring] == nil {
 		gs.spaces[spaceIdstring] = make(map[string]*Player)
+		gs.spaceChats[spaceIdstring] = []ChatMessage{}
 	}
 
 	var currentPlayersInSpace []Player
@@ -215,7 +270,19 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn, db *gorm.DB) {
 		}
 	}
 	gs.spaces[spaceIdstring][userIdStr] = player
+	chatHistory := gs.spaceChats[spaceIdstring]
 	gs.mu.Unlock()
+
+	if len(chatHistory) > 0 {
+		historyMsg := Message{
+			Type:    "chat_history",
+			Content: chatHistory,
+			Time:    time.Now(),
+		}
+		if err := player.Conn.WriteJSON(historyMsg); err != nil {
+			log.Errorf("Error sending chat history: %v", err)
+		}
+	}
 
 	joinMessage := map[string]interface{}{
 		"type":    "existing_players",
@@ -254,28 +321,39 @@ func (gs *SpaceServer) handlePlayerMessages(player *Player) {
 			continue
 		}
 
-		var msgData struct {
+		var message struct {
 			Type     string   `json:"type"`
-			Position Position `json:"position"`
+			Position Position `json:"position,omitempty"`
+			Content  string   `json:"content,omitempty"`
 		}
 
-		if err := json.Unmarshal(msg, &msgData); err != nil {
+		if err := json.Unmarshal(msg, &message); err != nil {
 			log.Error("Error parsing WebSocket message: %v", err)
 			continue
 		}
 
-		switch msgData.Type {
+		switch message.Type {
 		case "position_update":
-			player.Position = msgData.Position
+			player.Position = message.Position
 			gs.publishToRedis("game:positions", "position_update", map[string]interface{}{
 				"player_id":       player.ID,
 				"space_id":        player.SpaceID,
-				"position":        msgData.Position,
+				"position":        message.Position,
 				"player_name":     player.Name,
 				"player_nickname": player.Nickname,
 				"status":          player.Status,
 			})
+		case "chat_message":
+			gs.publishToRedis("game:chat", "chat_message", map[string]interface{}{
+				"space_id": player.SpaceID,
+				"content":  message.Content,
+				"author":   player.Nickname,
+			})
+			println(message.Content)
+		default:
+			log.Warnf("Unknown message type received: %s", message.Type)
 		}
+
 	}
 }
 
