@@ -4,6 +4,7 @@ import CreateSpaceModal from "../components/home/create-space-modal";
 import UserSpaces from "../components/home/user-spaces";
 import { useState } from "react";
 import { useAuth } from "../auth/authContext";
+import UserStatus from "../components/global/user-status";
 
 const Home = () => {
   const [refresh, setRefresh] = useState(false);
@@ -20,6 +21,7 @@ const Home = () => {
           Hello {user?.name.split(" ")[0]} 👋
         </h1>
         <div className="gap-2 flex md:w-auto">
+          <UserStatus />
           <JoinSpaceModal onSuccess={refetchSpaces} />
           <CreateSpaceModal onSuccess={refetchSpaces} />
         </div>

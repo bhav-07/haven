@@ -28,6 +28,16 @@ class MainScene extends Phaser.Scene {
         super("MainScene");
     }
 
+    getStatusColor(status: string) {
+        const colors: Record<string, number> = {
+            online: 0x22c55e,   // green
+            away: 0xfacc15,     // yellow
+            meeting: 0x3b82f6,  // blue
+            dnd: 0xef4444,      // red
+        };
+        return colors[status] ?? 0x9ca3af; // gray fallback
+    }
+
     init(data: {
         ws: WebSocket;
         playersRef: React.MutableRefObject<Record<string, Player>>;
@@ -188,38 +198,75 @@ class MainScene extends Phaser.Scene {
                 );
 
                 const nameText = this.add.text(
-                    playerData.position.x,
-                    playerData.position.y - 40,
+                    0, 0,
                     playerData.nickname,
                     {
                         fontSize: "14px",
                         color: "#ffffff",
                         backgroundColor: "#00000080",
-                        padding: { x: 4, y: 2 }
+                        padding: { x: 4, y: 2 },
                     }
                 );
 
-                otherPlayer.setData('nameText', nameText);
+                const nameWidth = nameText.width;
+
+                const totalWidth = 6 * 2 + 4 + nameWidth;
+
+                const startX = playerData.position.x - totalWidth / 2;
+                const anchorY = playerData.position.y - 40;
+
+                const statusIndicator = this.add.circle(
+                    startX + 6,
+                    anchorY,
+                    6,
+                    this.getStatusColor(playerData.status)
+                );
+
+                nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
+
+                otherPlayer.setData("nameText", nameText);
+                otherPlayer.setData("statusIndicator", statusIndicator);
+
                 this.otherPlayers.set(playerId, otherPlayer);
+
             } else {
                 const otherPlayer = this.otherPlayers.get(playerId)!;
                 const nameText = otherPlayer.getData('nameText') as Phaser.GameObjects.Text;
+                const statusIndicator = otherPlayer.getData("statusIndicator") as Phaser.GameObjects.Arc;
+
                 const lastPosition = { x: otherPlayer.x, y: otherPlayer.y };
 
                 if (lastPosition.x !== playerData.position.x || lastPosition.y !== playerData.position.y) {
                     otherPlayer.setPosition(playerData.position.x, playerData.position.y);
-                    nameText.setPosition(playerData.position.x - nameText.width / 2, playerData.position.y - 40);
+
+                    const nameWidth = nameText.width;
+                    const totalWidth = 6 * 2 + 4 + nameWidth;
+                    const startX = playerData.position.x - totalWidth / 2;
+                    const anchorY = playerData.position.y - 40;
+
+                    statusIndicator.setPosition(startX + 6, anchorY);
+                    nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
+
+                }
+
+
+                const newColor = this.getStatusColor(playerData.status);
+                if (statusIndicator.fillColor !== newColor) {
+                    statusIndicator.setFillStyle(newColor);
                 }
             }
         };
         this.otherPlayers.forEach((sprite, playerId) => {
             if (!currentPlayerIds.includes(playerId)) {
                 const nameText = sprite.getData('nameText') as Phaser.GameObjects.Text;
+                const statusIndicator = sprite.getData("statusIndicator") as Phaser.GameObjects.Arc;
                 if (nameText) {
                     nameText.destroy();
                 }
 
+                nameText?.destroy();
                 sprite.destroy();
+                statusIndicator?.destroy();
                 this.otherPlayers.delete(playerId);
             }
         });

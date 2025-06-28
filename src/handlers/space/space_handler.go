@@ -220,6 +220,8 @@ func SpaceHandlers(route fiber.Router, db *gorm.DB) {
 		return fiber.ErrUpgradeRequired
 	})
 
-	route.Get("/space/ws/:id", websocket.New(spaceServer.HandleWebSocket))
+	route.Get("/space/ws/:id", websocket.New(func(c *websocket.Conn) {
+		spaceServer.HandleWebSocket(c, db)
+	}))
 
 }

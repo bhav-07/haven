@@ -6,13 +6,32 @@ import (
 	"gorm.io/gorm"
 )
 
+type UserStatus string
+
+const (
+	UserStatusOnline UserStatus = "online"
+	UserStatusAway   UserStatus = "away"
+	UserStatusBusy   UserStatus = "meeting"
+	UserStatusDND    UserStatus = "dnd"
+)
+
+func (s UserStatus) IsValid() bool {
+	switch s {
+	case UserStatusOnline, UserStatusAway,
+		UserStatusBusy, UserStatusDND:
+		return true
+	}
+	return false
+}
+
 type User struct {
 	gorm.Model
-	Email     string  `json:"email" gorm:"type:text;unique;not null"`
-	Name      string  `json:"name" gorm:"type:text;not null"`
-	Spaces    []Space `gorm:"many2many:user_spaces;"`
-	Character string  `json:"character" gorm:"default:Alex"`
-	Nickname  string  `json:"nickname" gorm:"type:text"`
+	Email     string     `json:"email" gorm:"type:text;unique;not null"`
+	Name      string     `json:"name" gorm:"type:text;not null"`
+	Spaces    []Space    `gorm:"many2many:user_spaces;"`
+	Character string     `json:"character" gorm:"default:Alex"`
+	Nickname  string     `json:"nickname" gorm:"type:text"`
+	Status    UserStatus `json:"status" gorm:"type:varchar(20);default:'online'"`
 }
 
 type Space struct {

@@ -59,7 +59,7 @@ const JoinSpaceModal = ({ onSuccess }: { onSuccess: () => void }) => {
           setSpaceId("");
         }}
         title="Join a space"
-        className="text-neutral-800 space-y-4"
+        className="text-neutral-800 space-y-4 bg-white"
       >
         <p className="text-sm text-neutral-600">
           Enter the space ID in the below textarea and click join.

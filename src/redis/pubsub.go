@@ -7,9 +7,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bhav-07/haven/models"
+	"github.com/bhav-07/haven/utils"
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2/log"
+	"gorm.io/gorm"
 )
 
 type Message struct {
@@ -24,12 +27,13 @@ type Position struct {
 }
 
 type Player struct {
-	ID       string          `json:"id"`
-	Name     string          `json:"name"`
-	SpaceID  string          `json:"space_id"`
-	Nickname string          `json:"nickname"`
-	Position Position        `json:"position"`
-	Conn     *websocket.Conn `json:"-"`
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	SpaceID  string            `json:"space_id"`
+	Nickname string            `json:"nickname"`
+	Position Position          `json:"position"`
+	Conn     *websocket.Conn   `json:"-"`
+	Status   models.UserStatus `json:"status"`
 }
 
 type SpaceServer struct {
@@ -54,7 +58,7 @@ func NewSpaceServer() (*SpaceServer, error) {
 }
 
 func (gs *SpaceServer) subscribeToRedis() {
-	pubsub := gs.redisClient.Subscribe(gs.ctx, "game:positions", "game:events")
+	pubsub := gs.redisClient.Subscribe(gs.ctx, "game:positions", "game:events", "user:status_updates")
 	defer pubsub.Close()
 
 	ch := pubsub.Channel()
@@ -65,8 +69,82 @@ func (gs *SpaceServer) subscribeToRedis() {
 			continue
 		}
 
-		gs.broadcastToSpacePlayers(message)
+		switch msg.Channel {
+		case "user:status_updates":
+			gs.handleStatusUpdate(message)
+		default:
+			gs.broadcastToSpacePlayers(message)
+		}
 	}
+}
+
+func (gs *SpaceServer) handleStatusUpdate(message Message) {
+	content, ok := message.Content.(map[string]interface{})
+	if !ok {
+		return
+	}
+
+	userIdStr, ok := content["user_id"].(string)
+	if !ok {
+		return
+	}
+
+	newStatus, ok := content["status"].(string)
+	if !ok {
+		return
+	}
+
+	gs.mu.Lock()
+	defer gs.mu.Unlock()
+
+	for spaceID, players := range gs.spaces {
+		if player, exists := players[userIdStr]; exists {
+			player.Status = models.UserStatus(newStatus)
+
+			statusUpdateMessage := Message{
+				Type: "status_update",
+				Content: map[string]interface{}{
+					"player_id":       player.ID,
+					"player_name":     player.Name,
+					"player_nickname": player.Nickname,
+					"space_id":        spaceID,
+					"status":          player.Status,
+				},
+				Time: time.Now(),
+			}
+
+			for _, p := range players {
+				if err := p.Conn.WriteJSON(statusUpdateMessage); err != nil {
+					log.Error("Error sending status update to player %s: %v", p.ID, err)
+				}
+			}
+		}
+	}
+}
+
+func PublishStatusUpdate(redisClient *redis.Client, userID uint, status models.UserStatus) error {
+	ctx := context.Background()
+
+	message := Message{
+		Type: "status_update",
+		Content: map[string]interface{}{
+			"user_id": fmt.Sprintf("%d", userID),
+			"status":  string(status),
+		},
+		Time: time.Now(),
+	}
+
+	jsonMessage, err := json.Marshal(message)
+	if err != nil {
+		return fmt.Errorf("error marshaling status update message: %v", err)
+	}
+
+	err = redisClient.Publish(ctx, "user:status_updates", jsonMessage).Err()
+	if err != nil {
+		return fmt.Errorf("error publishing status update to Redis: %v", err)
+	}
+
+	return nil
 }
 
 func (gs *SpaceServer) broadcastToSpacePlayers(message Message) {
@@ -91,7 +169,7 @@ func (gs *SpaceServer) broadcastToSpacePlayers(message Message) {
 	}
 }
 
-func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
+func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn, db *gorm.DB) {
 
 	userId, ok := c.Locals("userId").(uint)
 	if !ok {
@@ -99,8 +177,12 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 		return
 	}
 
-	userName := c.Locals("userName").(string)
-	nickName := c.Locals("nickName").(string)
+	user, err := utils.GetUserfromID(userId, db)
+
+	if err != nil {
+		log.Errorf("Couldnt get user info using used id: %v", userId)
+		c.Close()
+	}
 
 	spaceIdstring := c.Params("id")
 	// spaceId, err := strconv.ParseUint(spaceIdstring, 10, 64)
@@ -112,11 +194,12 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 
 	player := &Player{
 		ID:       userIdStr,
-		Name:     userName,
+		Name:     user.Name,
 		SpaceID:  spaceIdstring,
-		Nickname: nickName,
+		Nickname: user.Nickname,
 		Conn:     c,
 		Position: Position{X: 850, Y: 1040},
+		Status:   user.Status,
 	}
 
 	gs.mu.Lock()
@@ -150,6 +233,7 @@ func (gs *SpaceServer) HandleWebSocket(c *websocket.Conn) {
 		"player_name":     player.Name,
 		"space_id":        spaceIdstring,
 		"position":        player.Position,
+		"status":          player.Status,
 	})
 
 	gs.handlePlayerMessages(player)
@@ -189,6 +273,7 @@ func (gs *SpaceServer) handlePlayerMessages(player *Player) {
 				"position":        msgData.Position,
 				"player_name":     player.Name,
 				"player_nickname": player.Nickname,
+				"status":          player.Status,
 			})
 		}
 	}

@@ -51,7 +51,7 @@ const SpaceModal = (currSpace: Space) => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        className="text-neutral-800 space-y-4 w-full max-w-2xl px-4 sm:px-6"
+        className="text-neutral-800 space-y-4 w-full max-w-2xl px-4 sm:px-6 bg-white"
       >
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-baseline gap-1">

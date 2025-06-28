@@ -7,6 +7,7 @@ import useWebSocket from "../../hooks/useWebSocket";
 import ExcalidrawBoard from "../../pages/WhiteBoard";
 import { useAuth } from "../../auth/authContext";
 import KanbanBoard from "./KanbanBoard/KanbanBoard";
+import UserStatus from "../global/user-status";
 
 const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   const spaceRef = useRef<Phaser.Game | null>(null);
@@ -65,6 +66,12 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   return (
     <div className="w-screen h-screen flex items-center justify-center">
       <Toaster />
+
+      {!loading && user && (
+        <div className="absolute top-4 right-4 z-50">
+          <UserStatus />
+        </div>
+      )}
 
       {isWhiteboardOpen && (
         <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-20">

@@ -2,12 +2,14 @@
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/authContext";
+import { UserStatusType } from "../types";
 
 export interface Player {
     id: string;
     name: string;
     position: { x: number, y: number };
     nickname: string;
+    status: UserStatusType;
 }
 
 const useWebSocket = (spaceId: string) => {
@@ -44,7 +46,8 @@ const useWebSocket = (spaceId: string) => {
                             y: message.content.position.y
                         },
                         name: message.content.player_name,
-                        nickname: message.content.player_nickname
+                        nickname: message.content.player_nickname,
+                        status: message.content.status,
                     };
 
                     playersRef.current = {
@@ -84,15 +87,37 @@ const useWebSocket = (spaceId: string) => {
 
                 case "existing_players": {
                     const existingPlayers: Record<string, Player> = {};
-                    message.content.forEach((player: any) => {
+                    console.log(message.content)
+                    message?.content?.forEach?.((player: any) => {
                         existingPlayers[player.id] = {
                             id: player.id,
                             name: player.name,
                             position: player.position,
                             nickname: player.nickname,
+                            status: player.status,
                         };
                     });
                     playersRef.current = existingPlayers;
+
+                    console.log(existingPlayers);
+
+                    break;
+                }
+
+                case "status_update": {
+                    const playerId = message.content.player_id;
+                    const existingPlayer = playersRef.current[playerId];
+                    if (existingPlayer) {
+                        playersRef.current = {
+                            ...playersRef.current,
+                            [playerId]: {
+                                ...existingPlayer,
+                                status: message.content.status
+                            },
+                        };
+                    }
+
+                    console.log(playersRef.current);
                     break;
                 }
                 default:

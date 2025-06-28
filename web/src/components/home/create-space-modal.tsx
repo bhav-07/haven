@@ -60,7 +60,7 @@ const CreateSpaceModal = ({ onSuccess }: { onSuccess: () => void }) => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Create a space"
-        className="text-neutral-800 space-y-4"
+        className="text-neutral-800 space-y-4 bg-white"
       >
         <p className="text-sm text-neutral-600">
           Enter the name for your space in the below textarea.
