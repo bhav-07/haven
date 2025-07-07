@@ -64,7 +64,7 @@ const SpaceModal = (currSpace: Space) => {
           </div>
           <a
             href={`/space/${currSpace.ID}`}
-            className="px-3 py-2 rounded-full bg-gradient-to-br from-[#414345] to-[#232526] text-white flex items-center text-sm sm:text-lg group"
+            className="px-3 py-2 rounded-full bg-gradient-to-br from-[#414345] to-[#232526] text-white flex items-center text-lg sm:text-2xl font-jersey group"
           >
             Open
             <ArrowUpRight className="ml-1 group-hover:rotate-45 transition-all duration-300" />
@@ -142,7 +142,7 @@ const DeleteSpaceModal = ({
       <button
         onClick={() => setIsModalOpen(true)}
         disabled={isLoading}
-        className="flex items-center gap-2 text-red-800 bg-red-100 px-3 py-2 rounded-md hover:bg-red-200 disabled:opacity-50"
+        className="flex items-center gap-2 text-red-800 bg-red-100 md:px-3 px-[10px] md:py-2 py-[6px] rounded-md hover:bg-red-200 disabled:opacity-50"
       >
         {isLoading ? "Deleting..." : "Delete Space"} <Trash2 size={16} />
       </button>
@@ -152,7 +152,7 @@ const DeleteSpaceModal = ({
         onClose={() => setIsModalOpen(false)}
         className="p-2 m-0 bg-white"
       >
-        <div className="text-neutral-800 space-y-4 p-2">
+        <div className="text-neutral-800 space-y-4 md:p-2 p-[2px]">
           <h2 className="text-xl font-semibold">Confirm Deletion</h2>
           <p>
             Are you sure you want to delete this space?

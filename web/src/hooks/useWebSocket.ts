@@ -51,7 +51,7 @@ const useWebSocket = (spaceId: string) => {
             // console.log(message.type)
             switch (message.type) {
                 case "player_joined": {
-                    toast.success(`${message.content.player_name} joined the space`);
+                    toast.success(`${message.content.player_nickname} joined the space`);
                     const newPlayer: Player = {
                         id: message.content.player_id,
                         position: {
@@ -91,7 +91,7 @@ const useWebSocket = (spaceId: string) => {
 
                 case "player_left": {
                     const updatedPlayers = { ...playersRef.current };
-                    const leavingPlayerName = updatedPlayers[message.content.player_id]?.name;
+                    const leavingPlayerName = updatedPlayers[message.content.player_id]?.nickname;
                     delete updatedPlayers[message.content.player_id];
                     playersRef.current = updatedPlayers;
                     toast.error(`${leavingPlayerName || 'A player'} left the space`);

@@ -31,6 +31,7 @@ const Space = () => {
     getSpace(spaceId!)
       .then((response) => {
         // setSpace(response.data);
+        console.log(response);
       })
       .catch((error: any) => {
         console.error("Error fetching spaces:", error);

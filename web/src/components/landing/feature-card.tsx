@@ -6,7 +6,7 @@ export const FeatureCard = ({
 }) => {
   return (
     <section
-      className={`w-full max-w-7xl items-center justify-center sticky top-20 ${className}`}
+      className={`w-full max-w-7xl items-center justify-center sticky top-24 ${className}`}
     >
       <img
         src={imageSrc}

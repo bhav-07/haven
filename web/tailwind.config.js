@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
+        jersey: ['"Jersey 15"', "sans-serif"],
       },
       keyframes: {
         "fade-in": {
@@ -13,7 +14,7 @@ export default {
         },
       },
       animation: {
-        "fade-in": "fade-in 1s ease-out",
+        "fade-in": "fade-in 2s ease-out",
         "fade-in-200": "fade-in 300ms ease-out",
       },
     },

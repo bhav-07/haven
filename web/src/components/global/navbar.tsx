@@ -21,8 +21,10 @@ const Navbar = () => {
             href="/"
             className="md:text-3xl text-2xl font-serif flex flex-row items-center gap-1"
           >
-            <Logo variant="gradient2" className="md:size-[24px] size-4" />
-            <span>Haven</span>
+            <Logo variant="gradient2" className="md:size-[24px] size-[20px]" />
+            <span className="font-jersey md:text-[40px] text-[32px]">
+              Haven
+            </span>
           </a>
 
           {/* Desktop Navigation */}
@@ -49,12 +51,12 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="absolute top-full mt-2 w-full bg-[#414345] rounded-lg shadow-lg border-slate-300 border-opacity-40 border-2 py-4 px-6 md:hidden">
+          <div className="absolute top-full mt-2 w-full bg-neutral-800 rounded-xl shadow-lg px-6 md:hidden py-4">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="block py-2 text-lg hover:text-slate-300 transition-colors"
+                className="block py-4 text-lg hover:text-slate-300 border-2 border-neutral-600 transition-colors bg-neutral-700 my-2 rounded-full"
               >
                 {link.label}
               </a>

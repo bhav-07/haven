@@ -10,14 +10,13 @@ const Landing = () => {
     <div className="items-center justify-center text-center flex flex-col max-w-screen overflow-y-clip">
       <Navbar />
       <section className="flex flex-col items-center justify-center h-svh gap-6 animate-fade-in select-none">
-        <h1 className="md:text-[200px] text-5xl md:gap-4 space-x-4 font-serif flex flex-row items-center">
-          <Logo variant="gradient2" className="md:size-[140px] size-9" />
-          <div className=" h-full md:w-2 sm:w-1 w-[2px] bg-gradient-to-br from-[#fdfcfb] to-[#eec09b]"></div>
-          <span className="bg-gradient-to-br from-[#fdfcfb] to-[#eec09b] text-transparent bg-clip-text">
+        <h1 className="md:text-[250px] text-7xl md:gap-4 space-x-1 font-serif flex flex-row items-center">
+          <Logo variant="gradient2" className="md:size-[140px] size-10" />
+          <span className="bg-gradient-to-br font-jersey from-[#fdfcfb] to-[#eec09b] text-transparent bg-clip-text">
             Haven
           </span>
         </h1>
-        <h3 className="md:text-lg text-sm md: -mt-5">
+        <h3 className="md:text-lg text-sm md:-mt-4">
           Haven brings the best of in-person collaboration to distributed teams.
         </h3>
         <button
@@ -40,7 +39,7 @@ const Landing = () => {
           />
         ))}
       </div>
-      <footer className="text-[250px] antialiased text-opacity-10 leading-none relative top-[45px] select-none tracking-widest font-semibold text-white">
+      <footer className="md:text-[350px] font-jersey text-[130px] antialiased text-opacity-10 relative tracking-tight select-none text-white md:-my-24 -my-8">
         Haven
       </footer>
     </div>
