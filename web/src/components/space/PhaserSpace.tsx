@@ -9,9 +9,11 @@ import { useAuth } from "../../auth/authContext";
 import KanbanBoard from "./KanbanBoard/KanbanBoard";
 import UserStatus from "../global/user-status";
 import { ChatBox } from "./ChatBox";
+import PlayerOverlay from "./PlayersInfoOverlay";
 
 const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   const spaceRef = useRef<Phaser.Game | null>(null);
+  const gameContainerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const {
     playersRef,
@@ -23,6 +25,8 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   } = useWebSocket(spaceId);
   const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
   const [isKanbanOpen, setIsKanbanOpen] = useState(false);
+
+  const [cameraData, setCameraData] = useState({ x: 0, y: 0, zoom: 1.5 });
 
   const { user } = useAuth();
 
@@ -36,6 +40,14 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
     if (!isWhiteboardOpen) {
       setIsKanbanOpen((prev) => !prev);
     }
+  };
+
+  const handleCameraUpdate = (newCameraData: {
+    x: number;
+    y: number;
+    zoom: number;
+  }) => {
+    setCameraData(newCameraData);
   };
 
   useEffect(() => {
@@ -60,6 +72,7 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       localUserId,
       onToggleWhiteboardModal: toggleWhiteboard,
       onToggleKanbanModal: toggleKanban,
+      onCameraUpdate: handleCameraUpdate,
     });
 
     setLoading(false);
@@ -84,6 +97,15 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
             isConnected={isConnected}
           />
         </div>
+      )}
+
+      {!loading && localUserId && (
+        <PlayerOverlay
+          players={playersRef.current}
+          localUserId={localUserId}
+          gameCamera={cameraData}
+          gameContainer={gameContainerRef.current || undefined}
+        />
       )}
 
       {isWhiteboardOpen && (
@@ -120,7 +142,13 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
         </div>
       )}
 
-      {!loading && <div id="game-container" className="w-full h-full" />}
+      {!loading && (
+        <div
+          ref={gameContainerRef}
+          id="game-container"
+          className="w-full h-full"
+        />
+      )}
     </div>
   );
 };

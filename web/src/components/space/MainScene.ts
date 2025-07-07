@@ -1,6 +1,6 @@
 import { Player } from "../../hooks/useWebSocket";
 import Space from "../../pages/Space";
-import { generateStatusIcons } from "../../services/iconGenerator";
+// import { generateStatusIcons } from "../../services/iconGenerator";
 
 class MainScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
@@ -18,7 +18,9 @@ class MainScene extends Phaser.Scene {
     // spaceName!: Phaser.GameObjects.Text;
     onToggleWhiteboardModal!: () => void;
     onToggleKanbanModal!: () => void;
-    statusIconUrls: Record<string, string> = {};
+
+    onCameraUpdate!: (cameraData: { x: number; y: number; zoom: number }) => void;
+    // statusIconUrls: Record<string, string> = {};
 
     lastDirection: "left" | "right" | "up" | "down" = "down";
 
@@ -51,6 +53,7 @@ class MainScene extends Phaser.Scene {
         space: Space;
         onToggleWhiteboardModal: () => void;
         onToggleKanbanModal: () => void;
+        onCameraUpdate: (cameraData: { x: number; y: number; zoom: number }) => void;
     }) {
         this.ws = data.ws;
         this.playersRef = data.playersRef;
@@ -58,6 +61,7 @@ class MainScene extends Phaser.Scene {
         // this.space = data.space;
         this.onToggleWhiteboardModal = data.onToggleWhiteboardModal;
         this.onToggleKanbanModal = data.onToggleKanbanModal;
+        this.onCameraUpdate = data.onCameraUpdate;
     }
 
     preload() {
@@ -68,13 +72,14 @@ class MainScene extends Phaser.Scene {
             frameHeight: 32,
         });
 
-        this.statusIconUrls = generateStatusIcons();
-        Object.entries(this.statusIconUrls).forEach(([status, dataUrl]) => {
-            this.load.image(`status-${status}`, dataUrl);
-        });
+        // this.statusIconUrls = generateStatusIcons();
+        // Object.entries(this.statusIconUrls).forEach(([status, dataUrl]) => {
+        //     this.load.image(`status-${status}`, dataUrl);
+        // });
     }
 
     create() {
+        this.input?.keyboard?.removeCapture('SPACE');
         this.cameras.main.setZoom(1.5);
 
         this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
@@ -208,82 +213,83 @@ class MainScene extends Phaser.Scene {
                     "player"
                 );
 
-                const nameText = this.add.text(
-                    0, 0,
-                    playerData.nickname,
-                    {
-                        fontSize: "18px",
-                        color: "#ffffff",
-                        backgroundColor: "#00000080",
-                        padding: { x: 4, y: 2 },
-                    }
-                );
+                // const nameText = this.add.text(
+                //     0, 0,
+                //     playerData.nickname,
+                //     {
+                //         fontSize: "18px",
+                //         color: "#ffffff",
+                //         backgroundColor: "#00000080",
+                //         padding: { x: 4, y: 2 },
+                //     }
+                // );
 
-                const nameWidth = nameText.width;
+                // const nameWidth = nameText.width;
 
-                const totalWidth = 6 * 2 + 4 + nameWidth;
+                // const totalWidth = 6 * 2 + 4 + nameWidth;
 
-                const startX = playerData.position.x - totalWidth / 2;
-                const anchorY = playerData.position.y - 40;
+                // const startX = playerData.position.x - totalWidth / 2;
+                // const anchorY = playerData.position.y - 40;
 
-                const statusIndicator = this.add.image(
-                    startX + 6,
-                    anchorY,
-                    this.getStatusIcon(playerData.status)
-                ).setTint(this.getStatusColor(playerData.status));
+                // const statusIndicator = this.add.image(
+                //     startX + 6,
+                //     anchorY,
+                //     this.getStatusIcon(playerData.status)
+                // ).setTint(this.getStatusColor(playerData.status));
 
-                nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
+                // nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
 
-                otherPlayer.setData("nameText", nameText);
-                otherPlayer.setData("statusIndicator", statusIndicator);
+                // otherPlayer.setData("nameText", nameText);
+                // otherPlayer.setData("statusIndicator", statusIndicator);
 
                 this.otherPlayers.set(playerId, otherPlayer);
 
             } else {
                 const otherPlayer = this.otherPlayers.get(playerId)!;
-                const nameText = otherPlayer.getData('nameText') as Phaser.GameObjects.Text;
-                const statusIndicator = otherPlayer.getData("statusIndicator") as Phaser.GameObjects.Image;
+                otherPlayer.setPosition(playerData.position.x, playerData.position.y);
+                // const nameText = otherPlayer.getData('nameText') as Phaser.GameObjects.Text;
+                // const statusIndicator = otherPlayer.getData("statusIndicator") as Phaser.GameObjects.Image;
 
-                const lastPosition = { x: otherPlayer.x, y: otherPlayer.y };
+                // const lastPosition = { x: otherPlayer.x, y: otherPlayer.y };
 
-                if (lastPosition.x !== playerData.position.x || lastPosition.y !== playerData.position.y) {
-                    otherPlayer.setPosition(playerData.position.x, playerData.position.y);
+                // if (lastPosition.x !== playerData.position.x || lastPosition.y !== playerData.position.y) {
+                //     otherPlayer.setPosition(playerData.position.x, playerData.position.y);
 
-                    const nameWidth = nameText.width;
-                    const totalWidth = 6 * 2 + 4 + nameWidth;
-                    const startX = playerData.position.x - totalWidth / 2;
-                    const anchorY = playerData.position.y - 40;
+                //     const nameWidth = nameText.width;
+                //     const totalWidth = 6 * 2 + 4 + nameWidth;
+                //     const startX = playerData.position.x - totalWidth / 2;
+                //     const anchorY = playerData.position.y - 40;
 
-                    statusIndicator.setPosition(startX + 6, anchorY);
-                    nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
+                //     statusIndicator.setPosition(startX + 6, anchorY);
+                //     nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
 
-                }
+                // }
 
 
-                const currentIconKey = this.getStatusIcon(playerData.status);
-                const currentColor = this.getStatusColor(playerData.status);
+                // const currentIconKey = this.getStatusIcon(playerData.status);
+                // const currentColor = this.getStatusColor(playerData.status);
 
-                if (statusIndicator.texture.key !== currentIconKey) {
-                    statusIndicator.setTexture(currentIconKey);
-                }
+                // if (statusIndicator.texture.key !== currentIconKey) {
+                //     statusIndicator.setTexture(currentIconKey);
+                // }
 
                 // Update tint color
-                if (statusIndicator.tint !== currentColor) {
-                    statusIndicator.setTint(currentColor);
-                }
+                // if (statusIndicator.tint !== currentColor) {
+                //     statusIndicator.setTint(currentColor);
+                // }
             }
         };
         this.otherPlayers.forEach((sprite, playerId) => {
             if (!currentPlayerIds.includes(playerId)) {
-                const nameText = sprite.getData('nameText') as Phaser.GameObjects.Text;
-                const statusIndicator = sprite.getData("statusIndicator") as Phaser.GameObjects.Arc;
-                if (nameText) {
-                    nameText.destroy();
-                }
+                // const nameText = sprite.getData('nameText') as Phaser.GameObjects.Text;
+                // const statusIndicator = sprite.getData("statusIndicator") as Phaser.GameObjects.Arc;
+                // if (nameText) {
+                //     nameText.destroy();
+                // }
 
-                nameText?.destroy();
+                // nameText?.destroy();
                 sprite.destroy();
-                statusIndicator?.destroy();
+                // statusIndicator?.destroy();
                 this.otherPlayers.delete(playerId);
             }
         });
@@ -345,6 +351,14 @@ class MainScene extends Phaser.Scene {
                 })
             );
             this.lastSentTime = time;
+        }
+
+        if (this.onCameraUpdate) {
+            this.onCameraUpdate({
+                x: this.player.x,
+                y: this.player.y,
+                zoom: this.cameras.main.zoom
+            });
         }
 
         const playerPoint = new Phaser.Geom.Point(this.player.x, this.player.y);
