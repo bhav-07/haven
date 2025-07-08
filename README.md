@@ -1,76 +1,95 @@
-# Haven - Your virtual workspace
-A collaborative online workspace platform that helps remote teams connect and work together in a virtual environment.
+# Haven
 
-<img src="https://github.com/user-attachments/assets/6bdd49fc-dd8a-4679-80c6-2218e09f09e4" width="100%" alt="Virtual Workspace Banner">
+Haven is a real-time collaborative virtual workspace platform that enables remote teams to work together in interactive 2D virtual environments. The platform combines virtual office spaces, collaborative tools, and project management features into a unified digital workspace.
 
-## 🛠️ Built Using
-<div>
-<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=next.js&logoColor=white" alt="Reactjs Badge">
-<img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Golang Badge">
-<img src="https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white" alt="Redis Badge">
-<img src="https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="Postgres Badge">
-<img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Badge">
-</div>
+## Core Features
 
-## ✨ Features
+### Virtual 2D Office Spaces
 
-### 🏢 Manage Spaces
-Create, join, or delete collaborative workspaces for your team.
+- **Interactive Virtual Environment**: 2D virtual office spaces powered by Phaser game engine with collision detection and player movement
+- **Real-time Player Synchronization**: Live player position updates and presence awareness across all connected clients
+- **Animated Player Avatars**: Sprite-based player characters with directional movement animations
+- **Status Indicators**: Visual status representation (online, away, meeting, do not disturb) with real-time updates
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/626bdc2f-fa5d-4770-9ad1-3fc4ed0aeedf" width="80%" alt="Space Management">
-</div>
-<br/>
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/a53aa73a-618d-4e83-b56c-6cf01373723b" width="80%" alt="Space Dashboard">
+  <img src="https://github.com/user-attachments/assets/cfb7a5ca-1d93-43c9-b600-490240b6517d" alt="Virtual Office Space" height="300"/>
+  <img src="https://github.com/user-attachments/assets/bb63e2cd-75b6-4eb0-be70-9fdc7fed2a39" alt="Player Avatars" height="300"/>
 </div>
 
-### ☕ Virtual Cafeteria
-Hangout with your colleagues in realtime at the virtual cafeteria.
+### Real-time Communication Infrastructure
 
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/cc4fbc5a-8254-4f08-8b88-ff89b1f9f24b" width="80%" alt="Virtual Cafeteria">
-</div>
-
-### 🎨 Collaborative Whiteboard
-Work together on ideas with our realtime collaborative whiteboard.
+- **WebSocket Integration**: Native WebSocket connections for real-time bidirectional communication
+- **Redis Pub/Sub Architecture**: Distributed message broadcasting across multiple server instances using Redis channels
+- **Rate-Limited Updates**: Optimized position update frequency to prevent network congestion
+- **Real-time Chat System**: In-space messaging with persistent chat history
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/e675f64d-cf02-4161-aaf4-42e3ba5d0860" width="80%" alt="Collaborative Whiteboard">
+  <img src="https://github.com/user-attachments/assets/7b3260fb-d30c-4bfa-945f-926e0aaf8d04" alt="Real-time Chat"/>
 </div>
 
-### 🖥️ Kanban Board
-Track your projects progress the modern way.
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/6fb26ed1-c967-4acc-a7ff-c2984e557c53" width="100%" alt="Kanban Board">
-</div>
+### Collaborative Whiteboard
 
-### 🖥️ Personal Desk
-Have your own customizable desk in the virtual workspace.
+- **Excalidraw Integration**: Full-featured collaborative drawing canvas with real-time synchronization
+- **Debounced Persistence**: 3-second debounced saving mechanism to optimize database writes while maintaining data consistency
+- **Multi-user Collaboration**: Simultaneous editing support with conflict resolution and change detection
+- **PNG Export Functionality**: Export whiteboard content as high-quality PNG images
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/5de57c9c-b016-45bb-a53d-596e87918a53" width="80%" alt="Personal Desk">
+  <img src="https://github.com/user-attachments/assets/2e7d265d-f8eb-4292-90c8-5fd23a3588f7" alt="Collaborative Whiteboard" style={{ maxWidth: '80%', height: 'auto', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }} />
 </div>
 
-### 🔕 Do Not Disturb Areas
-Focus on your work in designated quiet zones.
+### Project Management
+
+- **Kanban Board System**: Task management with drag-and-drop functionality across customizable workflow columns
+- **Task Priority System**: Color-coded priority indicators (HIGH/MEDIUM/LOW) with visual urgency indicators
+- **Space-scoped Tasks**: All tasks are associated with specific collaborative workspaces
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/f3ad67d0-a852-44da-92ce-2af11fc47447" width="80%" alt="Do Not Disturb Area">
+  <img src="https://github.com/user-attachments/assets/46f58c47-c875-4ec5-a749-ce3a14700f16" alt="Kanban Board" style={{ maxWidth: '75%', height: 'auto', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }} />
 </div>
 
-### Installation
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/virtual-workspace.git
-# Navigate to the project directory
-cd haven
-# Start with Docker
-docker-compose up
-```
+### Authentication & Security
 
-## 🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+- **Google OAuth Integration**: Complete OAuth 2.0 authentication flow with Google identity provider
+- **JWT Token Management**: Secure session management using JWT tokens stored in HTTP-only cookies
+- **Protected Routes**: Comprehensive route protection with authentication middleware
 
-## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/3f55130d-4946-48af-8ea9-8def4562af0b" alt="Authentication" style={{ maxWidth: '60%', height: 'auto', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }} />
+</div>
+
+### Space Management
+
+- **Workspace Creation**: Create and configure team collaborative spaces
+- **Space Joining**: Join existing spaces through invitation system
+- **Member Management**: Track space membership and user participation
+
+<div style={{ textAlign: 'center', margin: '20px 0' }}>
+  <img src="https://github.com/user-attachments/assets/2bc701b7-5a25-4ac0-86ba-f10990354e0d" alt="Space Management" style={{ maxWidth: '65%', height: 'auto', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }} />
+</div>
+
+---
+
+## Technical Architecture
+
+### Backend Stack
+
+- **Go with Fiber Framework**: High-performance HTTP web framework for RESTful API endpoints
+- **PostgreSQL with GORM**: Relational database with object-relational mapping for data persistence
+- **Redis Integration**: In-memory data store for real-time communication and session caching
+- **WebSocket Server**: Native WebSocket implementation for real-time features
+
+### Frontend Stack
+
+- **React with TypeScript**: Component-based UI with static typing for enhanced development experience
+- **Phaser Game Engine**: 2D game engine (version 3.88.2) for interactive virtual environments
+
+### Real-time Communication Channels
+
+| Channel | Purpose |
+|---------|---------|
+| `game:positions` | Player position synchronization across virtual spaces |
+| `game:events` | Player join/leave events and space state changes |
+| `game:chat` | Real-time chat message distribution |
+| `whiteboard:updates` | Collaborative whiteboard element synchronization |
+| `user:status_updates` | User presence and status change notifications |
