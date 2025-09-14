@@ -22,30 +22,20 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   status,
   size = 12,
 }) => {
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      online: "#22c55e",
-      away: "#facc15",
-      meeting: "#3b82f6",
-      dnd: "#ef4444",
-    };
-    return colors[status] || "#9ca3af";
-  };
-
   const getStatusIcon = (status: string) => {
-    const iconProps = { size: size * 1.2, color: getStatusColor(status) };
+    const iconProps = { size: size * 1.2 };
 
     switch (status) {
       case "online":
-        return <CheckCircle2 {...iconProps} />;
+        return <CheckCircle2 {...iconProps} className="text-green-300" />;
       case "away":
-        return <Clock {...iconProps} />;
+        return <Clock {...iconProps} className="text-yellow-300" />;
       case "meeting":
-        return <Video {...iconProps} />;
+        return <Video {...iconProps} className="text-blue-300" />;
       case "dnd":
-        return <MinusCircle {...iconProps} />;
+        return <MinusCircle {...iconProps} className="text-red-300" />;
       default:
-        return <CheckCircle2 {...iconProps} />;
+        return <CheckCircle2 {...iconProps} className="text-green-300" />;
     }
   };
 
@@ -103,7 +93,7 @@ const PlayerOverlay: React.FC<PlayerOverlayProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-40">
+    <div className="fixed inset-0 pointer-events-none z-0">
       {Object.entries(players).map(([playerId, player]) => {
         if (playerId === localUserId) return null;
 

@@ -10,6 +10,7 @@ import KanbanBoard from "./KanbanBoard/KanbanBoard";
 import UserStatus from "../global/user-status";
 import { ChatBox } from "./ChatBox";
 import PlayerOverlay from "./PlayersInfoOverlay";
+import { Home, KanbanSquare, Presentation } from "lucide-react";
 
 const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
   const spaceRef = useRef<Phaser.Game | null>(null);
@@ -70,8 +71,8 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       ws,
       playersRef,
       localUserId,
-      onToggleWhiteboardModal: toggleWhiteboard,
-      onToggleKanbanModal: toggleKanban,
+      // onToggleWhiteboardModal: toggleWhiteboard,
+      // onToggleKanbanModal: toggleKanban,
       onCameraUpdate: handleCameraUpdate,
     });
 
@@ -89,13 +90,35 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       <Toaster />
 
       {!loading && user && (
-        <div className="absolute top-5 right-5 z-50 flex flex-row items-center justify-center gap-3">
-          <UserStatus />
-          <ChatBox
-            chatHistory={chatHistory}
-            onSendMessage={sendChatMessage}
-            isConnected={isConnected}
-          />
+        <div className="flex flex-row justify-between absolute top-4 z-10 w-screen px-4">
+          <div className="flex flex-row items-center justify-center gap-3">
+            <a
+              href="/home"
+              className="rounded-full cursor-pointer bg-neutral-800 p-3"
+            >
+              <Home className="size-7" />
+            </a>
+          </div>
+          <div className="flex flex-row items-center justify-center gap-3">
+            <UserStatus />
+            <ChatBox
+              chatHistory={chatHistory}
+              onSendMessage={sendChatMessage}
+              isConnected={isConnected}
+            />
+            <button
+              className="rounded-full bg-neutral-800 p-3"
+              onClick={() => toggleWhiteboard()}
+            >
+              <Presentation className="size-7" />
+            </button>
+            <button
+              className="rounded-full bg-neutral-800 p-3"
+              onClick={() => toggleKanban()}
+            >
+              <KanbanSquare className="size-7" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -109,8 +132,8 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       )}
 
       {isWhiteboardOpen && (
-        <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-20">
-          <div className="relative w-[95%] h-[95%] bg-white rounded-lg shadow-lg">
+        <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-20 z-50">
+          <div className="relative w-[96%] h-[96%] bg-white rounded-lg shadow-lg">
             {user && (
               <ExcalidrawBoard
                 spaceId={spaceId}
@@ -123,8 +146,8 @@ const PhaserSpace = ({ spaceId }: { spaceId: string }) => {
       )}
 
       {isKanbanOpen && (
-        <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-20">
-          <div className="relative w-[95%] h-[95%] rounded-lg bg-white text-neutral-800 shadow-lg">
+        <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-20 z-50">
+          <div className="relative w-[96%] h-[96%] rounded-lg bg-white text-neutral-800 shadow-lg">
             {user && (
               <KanbanBoard
                 onClose={() => setIsKanbanOpen(false)}
