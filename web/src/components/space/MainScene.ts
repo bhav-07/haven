@@ -1,6 +1,5 @@
 import { Player } from "../../hooks/useWebSocket";
 import Space from "../../pages/Space";
-// import { generateStatusIcons } from "../../services/iconGenerator";
 
 class MainScene extends Phaser.Scene {
     player!: Phaser.Physics.Arcade.Sprite;
@@ -12,15 +11,8 @@ class MainScene extends Phaser.Scene {
     playersRef!: React.MutableRefObject<Record<string, Player>>;
     otherPlayers: Map<string, Phaser.Physics.Arcade.Sprite> = new Map();
     localUserId!: string;
-    whiteboardInteractText!: Phaser.GameObjects.Text;
-    whiteboardInteractZone!: Phaser.Geom.Rectangle;
-    // space!: Space;
-    // spaceName!: Phaser.GameObjects.Text;
-    onToggleWhiteboardModal!: () => void;
-    onToggleKanbanModal!: () => void;
 
     onCameraUpdate!: (cameraData: { x: number; y: number; zoom: number }) => void;
-    // statusIconUrls: Record<string, string> = {};
 
     lastDirection: "left" | "right" | "up" | "down" = "down";
 
@@ -51,16 +43,12 @@ class MainScene extends Phaser.Scene {
         playersRef: React.MutableRefObject<Record<string, Player>>;
         localUserId: string;
         space: Space;
-        onToggleWhiteboardModal: () => void;
-        onToggleKanbanModal: () => void;
         onCameraUpdate: (cameraData: { x: number; y: number; zoom: number }) => void;
     }) {
         this.ws = data.ws;
         this.playersRef = data.playersRef;
         this.localUserId = data.localUserId;
         // this.space = data.space;
-        this.onToggleWhiteboardModal = data.onToggleWhiteboardModal;
-        this.onToggleKanbanModal = data.onToggleKanbanModal;
         this.onCameraUpdate = data.onCameraUpdate;
     }
 
@@ -71,11 +59,6 @@ class MainScene extends Phaser.Scene {
             frameWidth: 18.75,
             frameHeight: 32,
         });
-
-        // this.statusIconUrls = generateStatusIcons();
-        // Object.entries(this.statusIconUrls).forEach(([status, dataUrl]) => {
-        //     this.load.image(`status-${status}`, dataUrl);
-        // });
     }
 
     create() {
@@ -85,36 +68,6 @@ class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
         this.add.image(0, 0, "map").setOrigin(0, 0);
-
-        this.whiteboardInteractZone = new Phaser.Geom.Rectangle(820, 640, 300, 300);
-
-        this.input.keyboard!.on('keydown-E', () => {
-            const playerPoint = new Phaser.Geom.Point(this.player.x, this.player.y);
-            const isInZone = Phaser.Geom.Rectangle.ContainsPoint(this.whiteboardInteractZone, playerPoint);
-
-            if (isInZone && this.onToggleWhiteboardModal) {
-                this.onToggleWhiteboardModal();
-            }
-        });
-
-        this.input.keyboard!.on('keydown-K', () => {
-            if (this.onToggleKanbanModal) {
-                this.onToggleKanbanModal();
-            }
-        });
-
-        const interactText = this.add.text(
-            980, 670,
-            "Press E to use whiteboard",
-            {
-                fontSize: "16px",
-                color: "#ffffff",
-                backgroundColor: "#00000080",
-                padding: { x: 4, y: 2 }
-            }
-        ).setOrigin(0.5).setVisible(true);
-
-        this.whiteboardInteractText = interactText;
 
         const collisionData = this.cache.json.get("collisions");
 
@@ -213,83 +166,16 @@ class MainScene extends Phaser.Scene {
                     "player"
                 );
 
-                // const nameText = this.add.text(
-                //     0, 0,
-                //     playerData.nickname,
-                //     {
-                //         fontSize: "18px",
-                //         color: "#ffffff",
-                //         backgroundColor: "#00000080",
-                //         padding: { x: 4, y: 2 },
-                //     }
-                // );
-
-                // const nameWidth = nameText.width;
-
-                // const totalWidth = 6 * 2 + 4 + nameWidth;
-
-                // const startX = playerData.position.x - totalWidth / 2;
-                // const anchorY = playerData.position.y - 40;
-
-                // const statusIndicator = this.add.image(
-                //     startX + 6,
-                //     anchorY,
-                //     this.getStatusIcon(playerData.status)
-                // ).setTint(this.getStatusColor(playerData.status));
-
-                // nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
-
-                // otherPlayer.setData("nameText", nameText);
-                // otherPlayer.setData("statusIndicator", statusIndicator);
-
                 this.otherPlayers.set(playerId, otherPlayer);
 
             } else {
                 const otherPlayer = this.otherPlayers.get(playerId)!;
                 otherPlayer.setPosition(playerData.position.x, playerData.position.y);
-                // const nameText = otherPlayer.getData('nameText') as Phaser.GameObjects.Text;
-                // const statusIndicator = otherPlayer.getData("statusIndicator") as Phaser.GameObjects.Image;
-
-                // const lastPosition = { x: otherPlayer.x, y: otherPlayer.y };
-
-                // if (lastPosition.x !== playerData.position.x || lastPosition.y !== playerData.position.y) {
-                //     otherPlayer.setPosition(playerData.position.x, playerData.position.y);
-
-                //     const nameWidth = nameText.width;
-                //     const totalWidth = 6 * 2 + 4 + nameWidth;
-                //     const startX = playerData.position.x - totalWidth / 2;
-                //     const anchorY = playerData.position.y - 40;
-
-                //     statusIndicator.setPosition(startX + 6, anchorY);
-                //     nameText.setPosition(startX + 6 * 2 + 4, anchorY - nameText.height / 2);
-
-                // }
-
-
-                // const currentIconKey = this.getStatusIcon(playerData.status);
-                // const currentColor = this.getStatusColor(playerData.status);
-
-                // if (statusIndicator.texture.key !== currentIconKey) {
-                //     statusIndicator.setTexture(currentIconKey);
-                // }
-
-                // Update tint color
-                // if (statusIndicator.tint !== currentColor) {
-                //     statusIndicator.setTint(currentColor);
-                // }
             }
         };
         this.otherPlayers.forEach((sprite, playerId) => {
             if (!currentPlayerIds.includes(playerId)) {
-                // const nameText = sprite.getData('nameText') as Phaser.GameObjects.Text;
-                // const statusIndicator = sprite.getData("statusIndicator") as Phaser.GameObjects.Arc;
-                // if (nameText) {
-                //     nameText.destroy();
-                // }
-
-                // nameText?.destroy();
                 sprite.destroy();
-                // statusIndicator?.destroy();
                 this.otherPlayers.delete(playerId);
             }
         });
@@ -360,10 +246,6 @@ class MainScene extends Phaser.Scene {
                 zoom: this.cameras.main.zoom
             });
         }
-
-        const playerPoint = new Phaser.Geom.Point(this.player.x, this.player.y);
-        const isInZone = Phaser.Geom.Rectangle.ContainsPoint(this.whiteboardInteractZone, playerPoint);
-        this.whiteboardInteractText.setVisible(isInZone);
 
         this.positionText.setText(
             `X: ${Math.floor(this.player.x)}, Y: ${Math.floor(this.player.y)} Players: ${Object.keys(this.playersRef.current).length}`
