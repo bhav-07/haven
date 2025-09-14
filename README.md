@@ -2,6 +2,10 @@
 
 Haven is a real-time collaborative virtual workspace platform that enables remote teams to work together in interactive 2D virtual environments. The platform combines virtual office spaces, collaborative tools, and project management features into a unified digital workspace.
 
+## Demo
+
+https://github.com/user-attachments/assets/f0f45e59-6d70-426e-b8ca-c1814b801222
+
 ## Core Features
 
 ### Virtual 2D Office Spaces
